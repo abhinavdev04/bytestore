@@ -1,0 +1,169 @@
+-- Category to Product Mapping (for reference)
+-- This shows which products belong to which category
+
+-- Category: Audio & Video
+--   - Acer HD LED Backlit Computer Monitor
+--   - Acer Nitro VG2 27" Gaming Monitor
+--   - Acer Nitro XV2 24" Monitor
+--   - Apple Studio Display
+--   - Asus ProArt Display
+--   - Dell 24 Monitor – S2421HN
+--   - Dell 27" FHD IPS Monitor
+--   - Dell 24" UltraSharp Monitor
+--   - Huawei Display 23.8"
+--   - LG UltraGear Curved Gaming Monitor
+--   - Studio 3 wireless
+
+-- Category: Laptops
+--   - Acer Aspire 5
+--   - Acer Aspire A515-57G Intel i5 1235U 8GB Memory 256GB Storage NVIDIA MX 550 2GB WINDOWS 10
+--   - Acer Aspire A515-57G Intel i7 1255U 8GB Memory 256GB Storage NVIDIA MX 550 2GB WINDOWS 10
+--   - Acer Predator Helios 300 i9 11800H 16GB Memory 1TB Storage NVIDIA RTX 3070 8GB Windows 10
+--   - Acer Predator Helios 300 i7 12700H 16GB DDR5 512GB NVME RTX 3060 6GB Windows 10 Home
+--   - Acer Swift 3
+--   - ROG Zephyrus G14
+--   - TUF Dash F15
+--   - Asus Tuf f15 i7 12th gen 16GB DDR5 512GB SSD RTX 3060 6GB
+--   - Asus Tuf F15 Gaming Laptop 12th gen i7 12700H 16GB DDR5 1TB NVME SSD RTX 3060 6GB
+--   - ASUS TUF Gaming A15
+--   - Dell Chromebook 13 3380
+--   - Dell Inspiron 14 5425 Ryzen 5-5625U 16GB RAM 512GB SSD
+--   - Dell Latitude 7430
+--   - Dell Precision 3470 Workstation
+--   - Dell Vostro 3510
+--   - Dell XPS 13 i7 12th gen
+--   - Dell XPS 13 Plus 9320 i7 12th gen 13.4 OLED  32GB DDR5  1TB  SSD
+--   - Dell XPS 13 Plus 9320 i7 1260p 16GB RAM 512GB SSD Windows 11
+--   - Dell XPS 13Plus 9320  i7 12th gen 13.4 OLED 16GB 512GB
+--   - Portege X30-G
+--   - HP 14" EliteBook 840 G8
+--   - HP Chromebook x360 14 G1 (2 in 1)
+--   - HP EliteBook x360 1030 G8 Notebook PC
+--   - Hp Envy X360
+--   - HP Laptop 15s
+--   - HP ProBook 430 G5 8th Gen i5 8250U, 8GB RAM, 256GB SSD, 13.3″ HD AG, Windows 11 Pro
+--   - HP Spectre X360
+--   - Hp Victus 15 Intel i5 12450H 8GB RAM 512GB SSD Nvidia GTX 1650 4GB Windows 11
+--   - HP ZBook Firefly 14 G8 Mobile Workstation
+--   - Ideapad 3
+--   - IdeaPad 3
+--   - IdeaPad  Slim 3 15
+--   - Inspiron 15 3511
+--   - Inspiron 3511
+--   - Latitude 14" 5420
+--   - Legion 5
+--   - Legion 5
+--   - Legion 5 Pro
+--   - Legion 5 Pro AMD Ryzen 7 5800H 16GB RAM 512GB SSD NVIDIA RTX 3050 4GB
+--   - Legion 7
+--   - Lenovo IdeaPad 3 Chromebook
+--   - Lenovo IdeaPad 3 i5 1235U 8GB RAM 256GB SSD Windows 11
+--   - Lenovo Legion 5 Pro Ryzen 9 6900HX, 16GB RAM, 1TB SSD,  RTX 3070Ti, 16inch QHD 165Hz
+--   - Lenovo Legion 5  Ryzen 5 5600H 8GB RAM 512GB SSD NVIDIA GeForce RTX 3050Ti 4GB
+--   - Lenovo Legion 5i i7 12700H 16GB DDR5 1TB NVME SSD RTX 3060 6GB Windows 10 Home
+--   - Lenovo Legion 5 AMD Ryzen 7 6800H 16GB RAM 512GB SSD Nvidia RTX 3060 6GB
+--   - Microsoft Surface Pro 12 2025
+--   - Rog Strix G15
+--   - Swift 3
+--   - ThinkPad E14 Gen 3
+--   - TUF Gaming F15
+
+-- Category: Parts & Accessories
+--   - Addlink AddGame A X70 SSD M.2 PCIe Gen3x4
+--   - Apple USB-C Charge Cable 2 m
+--   - ASRock  B365M PRO4 Motherboard Intel
+--   - Canon Cartridge 326
+--   - Canon imageCLASS MF441dw
+--   - Canon iR-2006N Digital Copier with Duplex and RADF
+--   - Canon Laser Shot LBP 2900 Printer
+--   - CAT-5 UTP 2M Cable
+--   - Colorful B550M Gaming Frozen Motherboard AMD
+--   - Colorful Z490 Gaming Pro Motherboard Intel
+--   - Cryorig M9 CPU air cooler
+--   - E55BT WIreless
+--   - GALAX GeForce RTX™ 4080
+--   - GALAX GeForce RTX™ 4090
+--   - Google Chromecast 4K UHD
+--   - Google Chromecast 1080p HD
+--   - H510 FLOW
+--   - H510i
+--   - H710
+--   - H710i
+--   - HDMI Cable 5m
+--   - HP 49A Black Original Toner Cartridge
+--   - HP 80A Black Original Toner Cartridge
+--   - HP 85A Black Original Toner Cartridge
+--   - HP 90X High Yield Black Original LaserJet Toner Cartridge, CE390X
+--   - KRAKEN X63 RGB
+--   - Lightning Digital A/V Adapter
+--   - Lightning to USB Camera Adapter
+--   - Logitech K375s Wireless Keyboard
+--   - MSI Pro X670-P WIFI DDR5
+--   - MSI Pro Z790-P WIFI DDR5
+--   - AER RGB 2 (120mm)
+--   - NZXT C750 Gold ATX PSU
+--   - SAMSUNG Portable SSD T7 Shield USB 3.2
+--   - Sandisk Extreme Portable SSD
+--   - Travel-Cube Adapter Type-A  Type-C
+--   - UGreen Portable Wireless Mouse (BlueTooth)
+--   - UGreen USB-C Multifunction Docking Station (5-in-1)
+--   - WD Elements External USB HDD
+
+-- Category: Software & Services
+--   - Explore All Products
+
+-- Category: Uncategorized
+--   - iPad (9th Gen)
+--   - iPad Air (4th Gen)
+--   - iPad Air 5th Gen (M1 Series)
+--   - Apple Mac Mini M2 16GB Memory 256GB SSD
+--   - Apple MacBook M2 Air  13" 16GB Memory 256GB SSD
+--   - Apple MacBook Air 13 inch M2 Chip 16GB Memory 512GB SSD
+--   - Apple MacBook Pro 16" M2 Max Chip 32GB Memory 1TB SSD
+--   - Apple MacBook Pro 14 inch M2 Pro Chip 16GB Memory 512GB SSD
+--   - Apple MacBook Pro 14  inch M2 Pro Chip 32GB Memory 1TB SSD
+--   - Apple MacBook Pro 16 inch M2 Pro Chip 16GB Memory 1TB SSD
+--   - Apple MacBook Pro 16 inch  M2 Pro chip 16GB Memory 512GB SSD
+--   - MacBook Pro 13" M1
+--   - Apple MacBook Pro 13" M2 Chip
+--   - MacBook  Pro 14 inch M2 Pro Chip16GB Memory 1TB SSD
+--   - Apple MacBook Pro 14" M2 Pro Chip 32GB Memory 512GB SSD
+--   - Apple MacBook Pro 16" M2 Max Chip 64GB Memory 1TB SSD
+--   - ASRock B860 Steel Legend WiFi
+--   - Asus ROG Zephyrus G14 Ryzen 7 4800HS 8GB Memory 512GB Storage Nvidia GTX 1650 4GB WINDOWS 10
+--   - Asus ROG Zephyrus G14 Ryzen 9 5900HS 16GB Memory 1TB Storage Nvidia RTX 3060 6GB WINDOWS 10
+--   - Dell Latitude 7330
+--   - Dell XPS 15 9520 i7 12700H 16GB RAM 512GB SSD Windows 11
+--   - Dell XPS 17 9720
+--   - Gigabyte Z890M Gaming X ( Micro-ATX )
+--   - Google Pixel 7
+--   - HP Omen Transcend 14 Intel
+--   - iMac 24 inch
+--   - Intel i5 13600K
+--   - Intel i7 13700K
+--   - Intel i9 13900K
+--   - Lenovo Thinkbook 13x Gen 4 Intel
+--   - Thinkpad T14 Gen 3
+--   - LENOVO V14 Gen 4
+--   - Ideapad Pro 5 16IMH9 Ultra 9 32GB 1TB
+--   - Logitech Group
+--   - Macbook Pro 14
+--   - MacBook Pro 16
+--   - Rog Zephyrus G14
+--   - Rog Zephyrus G14
+--   - ThinkPad E14 Gen 2
+--   - ThinkPad T14 Gen 3
+--   - ThinkPad T14 Gen 6 (AMD)
+--   - ThinkPad T14s Gen 6
+--   - WD_BLACK SN750
+
+-- Category: Gaming
+--   - ASUS TUF Gaming F16 (2025)
+
+-- Category: Printers & Scanners
+--   - Canon Cartridge 308
+
+-- Category: Desktops
+--   - Dell OptiPlex 5400 AIO
+--   - Dell PowerEdge R740
+

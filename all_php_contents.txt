@@ -1,0 +1,2151 @@
+ 
+########## 
+index.php 
+########## 
+ 
+<?php
+session_start();
+require 'config/config.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteStore - Tech E-Commerce</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo" onclick="window.location.href='index.php'">ByteStore</div>
+            <ul>
+                <li><a href="index.php" class="active">Home</a></li>
+                <?php if (isset($_SESSION['customer_id'])): ?>
+                    <li><a href="customer/shop.php">Shop</a></li>
+                    <li><a href="customer/cart.php">Cart</a></li>
+                    <li><a href="customer/logout.php">Logout (<?php echo $_SESSION['customer_name']; ?>)</a></li>
+                <?php elseif (isset($_SESSION['admin_id'])): ?>
+                    <li><a href="admin/dashboard.php">Admin Dashboard</a></li>
+                    <li><a href="admin/logout.php">Logout</a></li>
+                <?php elseif (isset($_SESSION['employee_id'])): ?>
+                    <li><a href="employee/dashboard.php">Employee Dashboard</a></li>
+                    <li><a href="employee/logout.php">Logout</a></li>
+                <?php else: ?>
+                    <li><a href="customer/login.php">Customer Login</a></li>
+                    <li><a href="customer/register.php">Register</a></li>
+                    <li><a href="admin/login.php">Admin Login</a></li>
+                    <li><a href="employee/login.php">Employee Login</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <div class="card text-center">
+            <h1>Welcome to ByteStore</h1>
+            <p style="font-size: 1.2rem; margin: 20px 0;">Your One-Stop Shop for Tech Products</p>
+            
+            <?php
+            // Get featured products
+            $sql = "SELECT * FROM product ORDER BY created_at DESC LIMIT 6";
+            $result = mysqli_query($conn, $sql);
+            ?>
+            
+            <h2 style="margin-top: 30px;">Featured Products</h2>
+            <div class="product-grid">
+                <?php while ($product = mysqli_fetch_assoc($result)): ?>
+                    <div class="product-card">
+                        <img src="<?php echo $product['product_image_path']; ?>" alt="<?php echo $product['product_name']; ?>" onerror="this.src='assets/images/placeholder.jpg'">
+                        <div class="product-card-body">
+                            <h3><?php echo $product['product_name']; ?></h3>
+                            <p class="price">$<?php echo number_format($product['product_price'], 2); ?></p>
+                            <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
+                            <?php if (isset($_SESSION['customer_id'])): ?>
+                                <a href="customer/shop.php" class="btn btn-primary">View Details</a>
+                            <?php else: ?>
+                                <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <?php if (!isset($_SESSION['customer_id']) && !isset($_SESSION['admin_id']) && !isset($_SESSION['employee_id'])): ?>
+                    <a href="customer/register.php" class="btn btn-primary">Get Started - Register Now</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 ByteStore - Tech E-Commerce System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+ 
+ 
+ 
+########## 
+add_product.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+require '../includes/product_handler.php';
+require '../includes/product_form.php';
+
+checkAdminLogin();
+
+$result = handleProductAction($conn, 'admin', $_SESSION['admin_id']);
+$success = $result['success'];
+$error = $result['error'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Add New Product</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <?php renderProductForm(); ?>
+        <a href="manage_products.php" class="btn btn-primary" style="margin-top: 10px;">Cancel</a>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+dashboard.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$admin_id = $_SESSION['admin_id'];
+
+$total_products = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM product"))['count'];
+$total_customers = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM customer"))['count'];
+$total_employees = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM employee"))['count'];
+$total_orders = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM orders"))['count'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, <?php echo $_SESSION['admin_name']; ?>!</p>
+    </div>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Total Products</h3>
+            <div class="number"><?php echo $total_products; ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Customers</h3>
+            <div class="number"><?php echo $total_customers; ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Employees</h3>
+            <div class="number"><?php echo $total_employees; ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Orders</h3>
+            <div class="number"><?php echo $total_orders; ?></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3>Quick Actions</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="manage_products.php" class="btn btn-primary">Manage Products</a>
+            <a href="manage_customers.php" class="btn btn-primary">Manage Customers</a>
+            <a href="manage_employees.php" class="btn btn-primary">Manage Employees</a>
+            <a href="view_orders.php" class="btn btn-primary">View Orders</a>
+        </div>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+edit_product.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+require '../includes/product_handler.php';
+require '../includes/product_form.php';
+
+checkAdminLogin();
+
+$product_id = (int)$_GET['id'];
+$product = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM product WHERE product_id=$product_id"));
+
+if (!$product) {
+    header("Location: manage_products.php");
+    exit();
+}
+
+$result = handleProductAction($conn, 'admin', $_SESSION['admin_id']);
+$success = $result['success'];
+$error = $result['error'];
+
+if ($success && isset($_POST['update_product'])) {
+    $product = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM product WHERE product_id=$product_id"));
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Edit Product</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <?php renderProductForm($product, 'edit'); ?>
+        <a href="manage_products.php" class="btn btn-primary" style="margin-top: 10px;">Cancel</a>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+login.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+
+$error = '';
+
+if (isset($_POST['login'])) {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = md5(mysqli_real_escape_string($conn, $_POST['password']));
+    
+    $result = mysqli_query($conn, "SELECT * FROM admin WHERE admin_email='$email' AND admin_password='$password'");
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['admin_id'] = $row['admin_id'];
+        $_SESSION['admin_name'] = $row['admin_name'];
+        header("Location: dashboard.php");
+        exit();
+    } else {
+        $error = "Invalid email or password!";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="auth-container">
+        <h2>Admin Login</h2>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <button type="submit" name="login" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 15px;">
+            <a href="../index.php">Back to Home</a>
+        </p>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+logout.php 
+########## 
+ 
+<?php
+session_start();
+session_destroy();
+header("Location: ../index.php");
+exit();
+?>
+
+ 
+ 
+ 
+########## 
+manage_customers.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$admin_id = $_SESSION['admin_id'];
+$success = '';
+$error = '';
+
+if (isset($_GET['delete'])) {
+    $customer_id = (int)$_GET['delete'];
+    mysqli_query($conn, "INSERT INTO admin_manages_customer (admin_id, customer_id, action_type) VALUES ($admin_id, $customer_id, 'DELETE')");
+    if (mysqli_query($conn, "DELETE FROM customer WHERE customer_id=$customer_id")) {
+        $success = "Customer deleted successfully!";
+    } else {
+        $error = "Failed to delete customer.";
+    }
+}
+
+$result = mysqli_query($conn, "SELECT * FROM customer ORDER BY created_at DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Manage Customers</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($customer = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?php echo $customer['customer_id']; ?></td>
+                        <td><?php echo $customer['customer_name']; ?></td>
+                        <td><?php echo $customer['customer_email']; ?></td>
+                        <td><?php echo substr($customer['customer_address'], 0, 50); ?>...</td>
+                        <td><?php echo date('Y-m-d', strtotime($customer['created_at'])); ?></td>
+                        <td>
+                            <a href="manage_customers.php?delete=<?php echo $customer['customer_id']; ?>" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this customer?')">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+manage_employees.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$admin_id = $_SESSION['admin_id'];
+$success = '';
+$error = '';
+
+if (isset($_POST['add_employee'])) {
+    $name = mysqli_real_escape_string($conn, $_POST['employee_name']);
+    $email = mysqli_real_escape_string($conn, $_POST['employee_email']);
+    $password = md5(mysqli_real_escape_string($conn, $_POST['employee_password']));
+    $shop_name = mysqli_real_escape_string($conn, $_POST['shop_name']);
+    
+    if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM employee WHERE employee_email='$email'")) > 0) {
+        $error = "Email already exists!";
+    } else {
+        if (mysqli_query($conn, "INSERT INTO employee (employee_name, employee_email, employee_password, shop_name) VALUES ('$name', '$email', '$password', '$shop_name')")) {
+            $employee_id = mysqli_insert_id($conn);
+            mysqli_query($conn, "INSERT INTO admin_manages_employee (admin_id, employee_id, action_type) VALUES ($admin_id, $employee_id, 'ADD')");
+            $success = "Employee added successfully!";
+        } else {
+            $error = "Failed to add employee.";
+        }
+    }
+}
+
+if (isset($_GET['delete'])) {
+    $employee_id = (int)$_GET['delete'];
+    mysqli_query($conn, "INSERT INTO admin_manages_employee (admin_id, employee_id, action_type) VALUES ($admin_id, $employee_id, 'DELETE')");
+    if (mysqli_query($conn, "DELETE FROM employee WHERE employee_id=$employee_id")) {
+        $success = "Employee deleted successfully!";
+    } else {
+        $error = "Failed to delete employee.";
+    }
+}
+
+$result = mysqli_query($conn, "SELECT * FROM employee ORDER BY created_at DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Employees - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Manage Employees</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <h3>Add New Employee</h3>
+        <form method="POST" style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="employee_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="employee_email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="employee_password" required>
+                </div>
+                <div class="form-group">
+                    <label>Shop Name</label>
+                    <input type="text" name="shop_name" required>
+                </div>
+            </div>
+            <button type="submit" name="add_employee" class="btn btn-success">Add Employee</button>
+        </form>
+        
+        <h3>Employee List</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Shop Name</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($employee = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?php echo $employee['employee_id']; ?></td>
+                        <td><?php echo $employee['employee_name']; ?></td>
+                        <td><?php echo $employee['employee_email']; ?></td>
+                        <td><?php echo $employee['shop_name']; ?></td>
+                        <td><?php echo date('Y-m-d', strtotime($employee['created_at'])); ?></td>
+                        <td>
+                            <a href="manage_employees.php?delete=<?php echo $employee['employee_id']; ?>" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this employee?')">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+manage_products.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$admin_id = $_SESSION['admin_id'];
+$success = '';
+$error = '';
+
+if (isset($_GET['delete'])) {
+    $product_id = (int)$_GET['delete'];
+    mysqli_query($conn, "INSERT INTO admin_manages_product (admin_id, product_id, action_type) VALUES ($admin_id, $product_id, 'DELETE')");
+    if (mysqli_query($conn, "DELETE FROM product WHERE product_id=$product_id")) {
+        $success = "Product deleted successfully!";
+    } else {
+        $error = "Failed to delete product.";
+    }
+}
+
+$result = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Manage Products</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="add_product.php" class="btn btn-success">Add New Product</a>
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($product = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?php echo $product['product_id']; ?></td>
+                        <td>
+                            <img src="../<?php echo $product['product_image_path']; ?>" 
+                                 alt="<?php echo $product['product_name']; ?>" 
+                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                 onerror="this.src='../assets/images/placeholder.jpg'">
+                        </td>
+                        <td><?php echo $product['product_name']; ?></td>
+                        <td>$<?php echo number_format($product['product_price'], 2); ?></td>
+                        <td><?php echo $product['product_stock']; ?></td>
+                        <td>
+                            <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-warning">Edit</a>
+                            <a href="manage_products.php?delete=<?php echo $product['product_id']; ?>" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+order_details.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$order_id = (int)$_GET['id'];
+
+$order = mysqli_fetch_assoc(mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email, c.customer_address FROM orders o JOIN customer c ON o.customer_id = c.customer_id WHERE o.order_id = $order_id"));
+
+if (!$order) {
+    header("Location: view_orders.php");
+    exit();
+}
+
+$items_result = mysqli_query($conn, "SELECT oi.*, p.product_name, p.product_image_path FROM order_items oi JOIN product p ON oi.product_id = p.product_id WHERE oi.order_id = $order_id");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Order Details - #<?php echo $order_id; ?></h2>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="view_orders.php" class="btn btn-primary">Back to Orders</a>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <?php echo $order['customer_name']; ?></p>
+                <p><strong>Email:</strong> <?php echo $order['customer_email']; ?></p>
+                <p><strong>Address:</strong> <?php echo $order['customer_address']; ?></p>
+            </div>
+            <div>
+                <h3>Order Information</h3>
+                <p><strong>Order Date:</strong> <?php echo date('Y-m-d H:i:s', strtotime($order['order_date'])); ?></p>
+                <p><strong>Status:</strong> <?php echo $order['order_status']; ?></p>
+                <p><strong>Payment Status:</strong> <?php echo $order['payment_status']; ?></p>
+                <p><strong>Shipping Address:</strong> <?php echo $order['shipping_address']; ?></p>
+            </div>
+        </div>
+        
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($item = mysqli_fetch_assoc($items_result)): 
+                    $item_total = $item['price'] * $item['quantity'];
+                ?>
+                    <tr>
+                        <td>
+                            <img src="../<?php echo $item['product_image_path']; ?>" 
+                                 alt="<?php echo $item['product_name']; ?>" 
+                                 style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; vertical-align: middle;"
+                                 onerror="this.src='../assets/images/placeholder.jpg'">
+                            <?php echo $item['product_name']; ?>
+                        </td>
+                        <td><?php echo $item['quantity']; ?></td>
+                        <td>$<?php echo number_format($item['price'], 2); ?></td>
+                        <td>$<?php echo number_format($item_total, 2); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                    <td style="font-weight: bold; font-size: 1.2rem;">$<?php echo number_format($order['total_amount'], 2); ?></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+view_orders.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkAdminLogin();
+
+$result = mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email FROM orders o JOIN customer c ON o.customer_id = c.customer_id ORDER BY o.order_date DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Orders - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>All Orders</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td>#<?php echo $order['order_id']; ?></td>
+                        <td><?php echo $order['customer_name']; ?><br><small><?php echo $order['customer_email']; ?></small></td>
+                        <td><?php echo date('Y-m-d H:i', strtotime($order['order_date'])); ?></td>
+                        <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
+                        <td><?php echo $order['order_status']; ?></td>
+                        <td><?php echo $order['payment_status']; ?></td>
+                        <td>
+                            <a href="order_details.php?id=<?php echo $order['order_id']; ?>" class="btn btn-primary">View Details</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+config.php 
+########## 
+ 
+<?php
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "bytestore";
+
+$conn = mysqli_connect($host, $user, $pass, $db);
+
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
+?>
+ 
+ 
+ 
+########## 
+add_to_cart.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkCustomerLogin();
+
+if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
+    $customer_id = $_SESSION['customer_id'];
+    $product_id = (int)$_POST['product_id'];
+    $quantity = (int)$_POST['quantity'];
+    
+    $result = mysqli_query($conn, "SELECT * FROM cart WHERE customer_id=$customer_id AND product_id=$product_id");
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        mysqli_query($conn, "UPDATE cart SET quantity=" . ($row['quantity'] + $quantity) . " WHERE cart_id=" . $row['cart_id']);
+    } else {
+        mysqli_query($conn, "INSERT INTO cart (customer_id, product_id, quantity) VALUES ($customer_id, $product_id, $quantity)");
+    }
+    header("Location: cart.php");
+    exit();
+}
+header("Location: shop.php");
+exit();
+?>
+
+ 
+ 
+ 
+########## 
+cart.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkCustomerLogin();
+
+$customer_id = $_SESSION['customer_id'];
+
+if (isset($_GET['remove'])) {
+    mysqli_query($conn, "DELETE FROM cart WHERE cart_id=" . (int)$_GET['remove'] . " AND customer_id=$customer_id");
+    header("Location: cart.php");
+    exit();
+}
+
+if (isset($_POST['update_quantity'])) {
+    $quantity = (int)$_POST['quantity'];
+    if ($quantity > 0) {
+        mysqli_query($conn, "UPDATE cart SET quantity=$quantity WHERE cart_id=" . (int)$_POST['cart_id'] . " AND customer_id=$customer_id");
+    }
+    header("Location: cart.php");
+    exit();
+}
+
+// Get cart items
+$sql = "SELECT c.cart_id, c.quantity, p.product_id, p.product_name, p.product_price, p.product_image_path, p.product_stock
+        FROM cart c
+        JOIN product p ON c.product_id = p.product_id
+        WHERE c.customer_id = $customer_id";
+$result = mysqli_query($conn, $sql);
+
+$total = 0;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Shopping Cart</h2>
+        
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($item = mysqli_fetch_assoc($result)): 
+                        $item_total = $item['product_price'] * $item['quantity'];
+                        $total += $item_total;
+                    ?>
+                        <tr>
+                            <td>
+                                <img src="../<?php echo $item['product_image_path']; ?>" alt="<?php echo $item['product_name']; ?>" 
+                                     style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; vertical-align: middle;" 
+                                     onerror="this.src='../assets/images/placeholder.jpg'">
+                                <?php echo $item['product_name']; ?>
+                            </td>
+                            <td>$<?php echo number_format($item['product_price'], 2); ?></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="cart_id" value="<?php echo $item['cart_id']; ?>">
+                                    <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" 
+                                           min="1" max="<?php echo $item['product_stock']; ?>" 
+                                           style="width: 60px; padding: 5px;">
+                                    <button type="submit" name="update_quantity" class="btn btn-warning" style="padding: 5px 10px;">Update</button>
+                                </form>
+                            </td>
+                            <td>$<?php echo number_format($item_total, 2); ?></td>
+                            <td>
+                                <a href="cart.php?remove=<?php echo $item['cart_id']; ?>" class="btn btn-danger" 
+                                   onclick="return confirm('Remove this item from cart?')">Remove</a>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                        <td style="font-weight: bold; font-size: 1.2rem;">$<?php echo number_format($total, 2); ?></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                <a href="checkout.php" class="btn btn-success">Proceed to Checkout</a>
+            </div>
+        <?php else: ?>
+            <p>Your cart is empty. <a href="shop.php">Start shopping!</a></p>
+        <?php endif; ?>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+checkout.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkCustomerLogin();
+
+$customer_id = $_SESSION['customer_id'];
+$error = '';
+$success = '';
+
+$customer = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM customer WHERE customer_id=$customer_id"));
+$cart_result = mysqli_query($conn, "SELECT c.quantity, p.product_id, p.product_name, p.product_price, p.product_stock FROM cart c JOIN product p ON c.product_id = p.product_id WHERE c.customer_id = $customer_id");
+
+$total = 0;
+$cart_items = [];
+while ($item = mysqli_fetch_assoc($cart_result)) {
+    $item_total = $item['product_price'] * $item['quantity'];
+    $total += $item_total;
+    $cart_items[] = $item;
+}
+
+if (isset($_POST['place_order'])) {
+    $shipping_address = mysqli_real_escape_string($conn, $_POST['shipping_address']);
+    
+    if (empty($cart_items)) {
+        $error = "Your cart is empty!";
+    } else {
+        foreach ($cart_items as $item) {
+            if ($item['quantity'] > $item['product_stock']) {
+                $error = "Insufficient stock for " . $item['product_name'];
+                break;
+            }
+        }
+        
+        if (!$error) {
+            if (mysqli_query($conn, "INSERT INTO orders (customer_id, total_amount, shipping_address, order_status, payment_status) VALUES ($customer_id, $total, '$shipping_address', 'Pending', 'Pending')")) {
+                $order_id = mysqli_insert_id($conn);
+                
+                foreach ($cart_items as $item) {
+                    mysqli_query($conn, "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($order_id, {$item['product_id']}, {$item['quantity']}, {$item['product_price']})");
+                    mysqli_query($conn, "UPDATE product SET product_stock=" . ($item['product_stock'] - $item['quantity']) . " WHERE product_id={$item['product_id']}");
+                }
+                
+                mysqli_query($conn, "DELETE FROM cart WHERE customer_id=$customer_id");
+                $success = "Order placed successfully! Order ID: #$order_id";
+            } else {
+                $error = "Failed to place order. Please try again.";
+            }
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Checkout</h2>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+            <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+        <?php else: ?>
+            <?php if (!empty($cart_items)): ?>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div>
+                        <h3>Order Summary</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($cart_items as $item): 
+                                    $item_total = $item['product_price'] * $item['quantity'];
+                                ?>
+                                    <tr>
+                                        <td><?php echo $item['product_name']; ?></td>
+                                        <td><?php echo $item['quantity']; ?></td>
+                                        <td>$<?php echo number_format($item['product_price'], 2); ?></td>
+                                        <td>$<?php echo number_format($item_total, 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                                    <td style="font-weight: bold;">$<?php echo number_format($total, 2); ?></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <div>
+                        <h3>Shipping Information</h3>
+                        <form method="POST">
+                            <div class="form-group">
+                                <label>Shipping Address</label>
+                                <textarea name="shipping_address" rows="5" required><?php echo $customer['customer_address']; ?></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                    <option>Cash on Delivery</option>
+                                    <option disabled>Credit Card (Coming Soon)</option>
+                                    <option disabled>PayPal (Coming Soon)</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" name="place_order" class="btn btn-success" style="width: 100%;">Place Order</button>
+                        </form>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p>Your cart is empty. <a href="shop.php">Start shopping!</a></p>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+login.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+
+$error = '';
+
+if (isset($_POST['login'])) {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = md5(mysqli_real_escape_string($conn, $_POST['password']));
+    
+    $result = mysqli_query($conn, "SELECT * FROM customer WHERE customer_email='$email' AND customer_password='$password'");
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['customer_id'] = $row['customer_id'];
+        $_SESSION['customer_name'] = $row['customer_name'];
+        header("Location: shop.php");
+        exit();
+    } else {
+        $error = "Invalid email or password!";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="auth-container">
+        <h2>Customer Login</h2>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <button type="submit" name="login" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 15px;">
+            Don't have an account? <a href="register.php">Register here</a>
+        </p>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+ 
+ 
+ 
+########## 
+logout.php 
+########## 
+ 
+<?php
+session_start();
+session_destroy();
+header("Location: ../index.php");
+exit();
+?>
+
+ 
+ 
+ 
+########## 
+register.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+
+$error = '';
+$success = '';
+
+if (isset($_POST['register'])) {
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = md5(mysqli_real_escape_string($conn, $_POST['password']));
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    
+    if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM customer WHERE customer_email='$email'")) > 0) {
+        $error = "Email already registered!";
+    } else {
+        if (mysqli_query($conn, "INSERT INTO customer (customer_name, customer_email, customer_password, customer_address) VALUES ('$name', '$email', '$password', '$address')")) {
+            $success = "Registration successful! You can now login.";
+        } else {
+            $error = "Registration failed. Please try again.";
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="auth-container">
+        <h2>Customer Registration</h2>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?> <a href="login.php">Login here</a></div>
+        <?php endif; ?>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Address</label>
+                <textarea name="address" rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" name="register" class="btn btn-primary" style="width: 100%;">Register</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 15px;">
+            Already have an account? <a href="login.php">Login here</a>
+        </p>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+ 
+ 
+ 
+########## 
+shop.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkCustomerLogin();
+
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$sql = $search ? "SELECT * FROM product WHERE product_name LIKE '%$search%' OR product_description LIKE '%$search%'" : "SELECT * FROM product ORDER BY created_at DESC";
+$result = mysqli_query($conn, $sql);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Browse Products</h2>
+        
+        <!-- Search Form -->
+        <form method="GET" style="margin-bottom: 20px;">
+            <div class="form-group">
+                <input type="text" name="search" placeholder="Search products..." value="<?php echo $search; ?>" style="display: inline-block; width: 70%;">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="shop.php" class="btn btn-warning">Clear</a>
+            </div>
+        </form>
+        
+        <div class="product-grid">
+            <?php if (mysqli_num_rows($result) > 0): ?>
+                <?php while ($product = mysqli_fetch_assoc($result)): ?>
+                    <div class="product-card">
+                        <img src="../<?php echo $product['product_image_path']; ?>" alt="<?php echo $product['product_name']; ?>" onerror="this.src='../assets/images/placeholder.jpg'">
+                        <div class="product-card-body">
+                            <h3><?php echo $product['product_name']; ?></h3>
+                            <p style="color: #7f8c8d; margin: 10px 0;"><?php echo substr($product['product_description'], 0, 100); ?>...</p>
+                            <p class="price">$<?php echo number_format($product['product_price'], 2); ?></p>
+                            <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
+                            
+                            <?php if ($product['product_stock'] > 0): ?>
+                                <form method="POST" action="add_to_cart.php" style="margin-top: 10px;">
+                                    <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
+                                    <div class="form-group">
+                                        <label>Quantity:</label>
+                                        <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['product_stock']; ?>" style="width: 80px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-success" style="width: 100%;">Add to Cart</button>
+                                </form>
+                            <?php else: ?>
+                                <button class="btn btn-danger" disabled style="width: 100%;">Out of Stock</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p>No products found.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+ 
+ 
+ 
+########## 
+add_products.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+require '../includes/product_handler.php';
+require '../includes/product_form.php';
+
+checkEmployeeLogin();
+
+$result = handleProductAction($conn, 'employee', $_SESSION['employee_id']);
+$success = $result['success'];
+$error = $result['error'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Add New Product</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <a href="dashboard.php" class="btn btn-primary" style="margin-bottom: 20px;">Back to Dashboard</a>
+        
+        <?php renderProductForm(); ?>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+dashboard.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkEmployeeLogin();
+
+$employee_id = $_SESSION['employee_id'];
+
+$total_products = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM product"))['count'];
+$total_orders = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM orders"))['count'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Employee Dashboard</h2>
+        <p>Welcome, <?php echo $_SESSION['employee_name']; ?>!</p>
+    </div>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Total Products</h3>
+            <div class="number"><?php echo $total_products; ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Orders</h3>
+            <div class="number"><?php echo $total_orders; ?></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3>Quick Actions</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="add_products.php" class="btn btn-success">Add Product</a>
+            <a href="edit_products.php" class="btn btn-primary">Edit Products</a>
+            <a href="delete_products.php" class="btn btn-danger">Delete Products</a>
+            <a href="view_orders.php" class="btn btn-primary">View Orders</a>
+        </div>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+delete_products.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkEmployeeLogin();
+
+$employee_id = $_SESSION['employee_id'];
+$success = '';
+$error = '';
+
+if (isset($_GET['delete'])) {
+    $product_id = (int)$_GET['delete'];
+    mysqli_query($conn, "INSERT INTO employee_manages_product (employee_id, product_id, action_type) VALUES ($employee_id, $product_id, 'DELETE')");
+    if (mysqli_query($conn, "DELETE FROM product WHERE product_id=$product_id")) {
+        $success = "Product deleted successfully!";
+    } else {
+        $error = "Failed to delete product.";
+    }
+}
+
+$result = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Products - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Delete Products</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($product = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?php echo $product['product_id']; ?></td>
+                        <td>
+                            <img src="../<?php echo $product['product_image_path']; ?>" 
+                                 alt="<?php echo $product['product_name']; ?>" 
+                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                 onerror="this.src='../assets/images/placeholder.jpg'">
+                        </td>
+                        <td><?php echo $product['product_name']; ?></td>
+                        <td>$<?php echo number_format($product['product_price'], 2); ?></td>
+                        <td><?php echo $product['product_stock']; ?></td>
+                        <td>
+                            <a href="delete_products.php?delete=<?php echo $product['product_id']; ?>" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this product? This action cannot be undone!')">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+edit_products.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+require '../includes/product_handler.php';
+require '../includes/product_form.php';
+
+checkEmployeeLogin();
+
+$result = handleProductAction($conn, 'employee', $_SESSION['employee_id']);
+$success = $result['success'];
+$error = $result['error'];
+
+$sql = "SELECT * FROM product ORDER BY created_at DESC";
+$products_result = mysqli_query($conn, $sql);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Products - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Edit Products</h2>
+        
+        <?php if ($success): ?>
+            <div class="alert alert-success"><?php echo $success; ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <a href="dashboard.php" class="btn btn-primary" style="margin-bottom: 20px;">Back to Dashboard</a>
+        
+        <div style="display: grid; gap: 20px;">
+            <?php while ($product = mysqli_fetch_assoc($products_result)): ?>
+                <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+                    <?php renderProductForm($product, 'edit'); ?>
+                </div>
+            <?php endwhile; ?>
+        </div>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+login.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+
+$error = '';
+
+if (isset($_POST['login'])) {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = md5(mysqli_real_escape_string($conn, $_POST['password']));
+    
+    $result = mysqli_query($conn, "SELECT * FROM employee WHERE employee_email='$email' AND employee_password='$password'");
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['employee_id'] = $row['employee_id'];
+        $_SESSION['employee_name'] = $row['employee_name'];
+        header("Location: dashboard.php");
+        exit();
+    } else {
+        $error = "Invalid email or password!";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Login - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="auth-container">
+        <h2>Employee Login</h2>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <button type="submit" name="login" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 15px;">
+            <a href="../index.php">Back to Home</a>
+        </p>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+logout.php 
+########## 
+ 
+<?php
+session_start();
+session_destroy();
+header("Location: ../index.php");
+exit();
+?>
+
+ 
+ 
+ 
+########## 
+order_details.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkEmployeeLogin();
+
+$order_id = (int)$_GET['id'];
+
+$order = mysqli_fetch_assoc(mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email, c.customer_address FROM orders o JOIN customer c ON o.customer_id = c.customer_id WHERE o.order_id = $order_id"));
+
+if (!$order) {
+    header("Location: view_orders.php");
+    exit();
+}
+
+$items_result = mysqli_query($conn, "SELECT oi.*, p.product_name, p.product_image_path FROM order_items oi JOIN product p ON oi.product_id = p.product_id WHERE oi.order_id = $order_id");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>Order Details - #<?php echo $order_id; ?></h2>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="view_orders.php" class="btn btn-primary">Back to Orders</a>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <?php echo $order['customer_name']; ?></p>
+                <p><strong>Email:</strong> <?php echo $order['customer_email']; ?></p>
+                <p><strong>Address:</strong> <?php echo $order['customer_address']; ?></p>
+            </div>
+            <div>
+                <h3>Order Information</h3>
+                <p><strong>Order Date:</strong> <?php echo date('Y-m-d H:i:s', strtotime($order['order_date'])); ?></p>
+                <p><strong>Status:</strong> <?php echo $order['order_status']; ?></p>
+                <p><strong>Payment Status:</strong> <?php echo $order['payment_status']; ?></p>
+                <p><strong>Shipping Address:</strong> <?php echo $order['shipping_address']; ?></p>
+            </div>
+        </div>
+        
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($item = mysqli_fetch_assoc($items_result)): 
+                    $item_total = $item['price'] * $item['quantity'];
+                ?>
+                    <tr>
+                        <td>
+                            <img src="../<?php echo $item['product_image_path']; ?>" 
+                                 alt="<?php echo $item['product_name']; ?>" 
+                                 style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; vertical-align: middle;"
+                                 onerror="this.src='../assets/images/placeholder.jpg'">
+                            <?php echo $item['product_name']; ?>
+                        </td>
+                        <td><?php echo $item['quantity']; ?></td>
+                        <td>$<?php echo number_format($item['price'], 2); ?></td>
+                        <td>$<?php echo number_format($item_total, 2); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                    <td style="font-weight: bold; font-size: 1.2rem;">$<?php echo number_format($order['total_amount'], 2); ?></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+view_orders.php 
+########## 
+ 
+<?php
+session_start();
+require '../config/config.php';
+require '../includes/auth.php';
+
+checkEmployeeLogin();
+
+$result = mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email FROM orders o JOIN customer c ON o.customer_id = c.customer_id ORDER BY o.order_date DESC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Orders - ByteStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="card">
+        <h2>All Orders</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td>#<?php echo $order['order_id']; ?></td>
+                        <td><?php echo $order['customer_name']; ?><br><small><?php echo $order['customer_email']; ?></small></td>
+                        <td><?php echo date('Y-m-d H:i', strtotime($order['order_date'])); ?></td>
+                        <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
+                        <td><?php echo $order['order_status']; ?></td>
+                        <td><?php echo $order['payment_status']; ?></td>
+                        <td>
+                            <a href="order_details.php?id=<?php echo $order['order_id']; ?>" class="btn btn-primary">View Details</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+auth.php 
+########## 
+ 
+<?php
+// Authentication helper functions
+
+// Check if customer is logged in
+function checkCustomerLogin() {
+    if (!isset($_SESSION['customer_id'])) {
+        header("Location: login.php");
+        exit();
+    }
+}
+
+// Check if admin is logged in
+function checkAdminLogin() {
+    if (!isset($_SESSION['admin_id'])) {
+        header("Location: login.php");
+        exit();
+    }
+}
+
+// Check if employee is logged in
+function checkEmployeeLogin() {
+    if (!isset($_SESSION['employee_id'])) {
+        header("Location: login.php");
+        exit();
+    }
+}
+
+
+
+ 
+ 
+ 
+########## 
+footer.php 
+########## 
+ 
+    </div>
+    <footer>
+        <p>&copy; 2025 ByteStore - Tech E-Commerce System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+
+ 
+ 
+ 
+########## 
+header.php 
+########## 
+ 
+<?php
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteStore - Tech E-Commerce</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo" onclick="window.location.href='../index.php'">ByteStore</div>
+            <ul>
+                <?php 
+                $current_page = basename($_SERVER['PHP_SELF']);
+                $current_dir = basename(dirname($_SERVER['PHP_SELF']));
+                $home_link = ($current_dir == 'customer' || $current_dir == 'admin' || $current_dir == 'employee') ? '../index.php' : 'index.php';
+                ?>
+                <li><a href="<?php echo $home_link; ?>" <?php if($current_page == 'index.php') echo 'class="active"'; ?>>Home</a></li>
+                <?php if ($current_dir == 'customer'): ?>
+                    <?php if (isset($_SESSION['customer_id'])): ?>
+                        <li><a href="shop.php" <?php if($current_page == 'shop.php') echo 'class="active"'; ?>>Shop</a></li>
+                        <li><a href="cart.php" <?php if($current_page == 'cart.php') echo 'class="active"'; ?>>Cart</a></li>
+                        <li><a href="logout.php">Logout (<?php echo $_SESSION['customer_name']; ?>)</a></li>
+                    <?php else: ?>
+                        <li><a href="login.php" <?php if($current_page == 'login.php') echo 'class="active"'; ?>>Customer Login</a></li>
+                        <li><a href="register.php" <?php if($current_page == 'register.php') echo 'class="active"'; ?>>Register</a></li>
+                    <?php endif; ?>
+                <?php elseif ($current_dir == 'admin'): ?>
+                    <?php if (isset($_SESSION['admin_id'])): ?>
+                        <li><a href="dashboard.php" <?php if($current_page == 'dashboard.php') echo 'class="active"'; ?>>Dashboard</a></li>
+                        <li><a href="logout.php">Logout (<?php echo $_SESSION['admin_name']; ?>)</a></li>
+                    <?php else: ?>
+                        <li><a href="login.php" <?php if($current_page == 'login.php') echo 'class="active"'; ?>>Admin Login</a></li>
+                    <?php endif; ?>
+                <?php elseif ($current_dir == 'employee'): ?>
+                    <?php if (isset($_SESSION['employee_id'])): ?>
+                        <li><a href="dashboard.php" <?php if($current_page == 'dashboard.php') echo 'class="active"'; ?>>Dashboard</a></li>
+                        <li><a href="logout.php">Logout (<?php echo $_SESSION['employee_name']; ?>)</a></li>
+                    <?php else: ?>
+                        <li><a href="login.php" <?php if($current_page == 'login.php') echo 'class="active"'; ?>>Employee Login</a></li>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <li><a href="customer/login.php">Customer Login</a></li>
+                    <li><a href="customer/register.php">Register</a></li>
+                    <li><a href="admin/login.php">Admin Login</a></li>
+                    <li><a href="employee/login.php">Employee Login</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+
+ 
+ 
+ 
+########## 
+product_form.php 
+########## 
+ 
+<?php
+// Shared product form - used by both admin and employee
+function renderProductForm($product = null, $action = 'add') {
+    $is_edit = ($action == 'edit' && $product);
+    ?>
+    <form method="POST">
+        <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" name="product_name" value="<?php echo $is_edit ? $product['product_name'] : ''; ?>" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="product_description" rows="5" required><?php echo $is_edit ? $product['product_description'] : ''; ?></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Price</label>
+            <input type="number" name="product_price" step="0.01" value="<?php echo $is_edit ? $product['product_price'] : ''; ?>" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Stock</label>
+            <input type="number" name="product_stock" min="0" value="<?php echo $is_edit ? $product['product_stock'] : ''; ?>" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Image Path (e.g., assets/images/product.jpg)</label>
+            <input type="text" name="product_image_path" value="<?php echo $is_edit ? $product['product_image_path'] : ''; ?>" required>
+        </div>
+        
+        <?php if ($is_edit): ?>
+            <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
+        <?php endif; ?>
+        
+        <button type="submit" name="<?php echo $is_edit ? 'update_product' : 'add_product'; ?>" class="btn btn-success">
+            <?php echo $is_edit ? 'Update' : 'Add'; ?> Product
+        </button>
+    </form>
+    <?php
+}
+?>
+
+ 
+ 
+ 
+########## 
+product_handler.php 
+########## 
+ 
+<?php
+// Shared product handler - processes add/update for admin and employee
+function handleProductAction($conn, $user_type, $user_id) {
+    $success = '';
+    $error = '';
+    
+    if (isset($_POST['add_product'])) {
+        $name = mysqli_real_escape_string($conn, $_POST['product_name']);
+        $description = mysqli_real_escape_string($conn, $_POST['product_description']);
+        $price = mysqli_real_escape_string($conn, $_POST['product_price']);
+        $stock = (int)$_POST['product_stock'];
+        $image_path = mysqli_real_escape_string($conn, $_POST['product_image_path']);
+        
+        $sql = "INSERT INTO product (product_name, product_description, product_price, product_image_path, product_stock) 
+                VALUES ('$name', '$description', $price, '$image_path', $stock)";
+        
+        if (mysqli_query($conn, $sql)) {
+            $product_id = mysqli_insert_id($conn);
+            logProductAction($conn, $user_type, $user_id, $product_id, 'ADD');
+            $success = "Product added successfully!";
+        } else {
+            $error = "Failed to add product.";
+        }
+    }
+    
+    if (isset($_POST['update_product'])) {
+        $product_id = (int)$_POST['product_id'];
+        $name = mysqli_real_escape_string($conn, $_POST['product_name']);
+        $description = mysqli_real_escape_string($conn, $_POST['product_description']);
+        $price = mysqli_real_escape_string($conn, $_POST['product_price']);
+        $stock = (int)$_POST['product_stock'];
+        $image_path = mysqli_real_escape_string($conn, $_POST['product_image_path']);
+        
+        $update = "UPDATE product SET product_name='$name', product_description='$description', 
+                   product_price=$price, product_stock=$stock, product_image_path='$image_path' 
+                   WHERE product_id=$product_id";
+        
+        if (mysqli_query($conn, $update)) {
+            logProductAction($conn, $user_type, $user_id, $product_id, 'UPDATE');
+            $success = "Product updated successfully!";
+        } else {
+            $error = "Failed to update product.";
+        }
+    }
+    
+    return ['success' => $success, 'error' => $error];
+}
+
+function logProductAction($conn, $user_type, $user_id, $product_id, $action) {
+    if ($user_type == 'admin') {
+        $log = "INSERT INTO admin_manages_product (admin_id, product_id, action_type) VALUES ($user_id, $product_id, '$action')";
+    } else {
+        $log = "INSERT INTO employee_manages_product (employee_id, product_id, action_type) VALUES ($user_id, $product_id, '$action')";
+    }
+    mysqli_query($conn, $log);
+}
+?>
+
+ 
+ 
