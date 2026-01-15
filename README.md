@@ -143,7 +143,7 @@ bytestore/
 - Add order status management
 - Add product categories
 - Add customer profile management
-- Add filter products functionality
+- Add search and filter functionality
 - Add responsive design improvements
 
 ## Author
