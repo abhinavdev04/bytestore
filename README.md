@@ -39,8 +39,8 @@ Seed data included:
 - Password: `Superadmin1@bytestore.com`
 
 ### Employee
-- Email: `emp1@bytestore.com`
-- Password: `emp123`
+- Email: `Employee1@bytestore.com`
+- Password: `Employee1@bytestore.com`
 
 ### Customers (sample data)
 - Akraj: `Akraj@bytestore.com` / `123`
