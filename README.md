@@ -149,7 +149,7 @@ bytestore/
 ## Author
 
 Abhinav Sapkota (002)
-BCS 4th Semester
+4th Semester
 Advanced College of Engineering and Management
 
 ## Supervisor
