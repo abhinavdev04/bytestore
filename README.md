@@ -35,8 +35,8 @@ Seed data included:
 ## Default Login Credentials
 
 ### Admin
-- Email: `admin@bytestore.com`
-- Password: `admin123`
+- Email: `Superadmin1@bytestore.com`
+- Password: `Superadmin1@bytestore.com`
 
 ### Employee
 - Email: `emp1@bytestore.com`
@@ -123,7 +123,7 @@ bytestore/
 
 ## Notes
 
-- Password hashing uses MD5 for simplicity (in production, use `password_hash()`)
+- Password hashing uses Password default for simplicity 
 - Image paths are stored as text in the database (you can upload images to `assets/images/` folder)
 - Payment processing is simplified (Cash on Delivery only)
 - All code is kept simple and easy to understand for academic purposes
