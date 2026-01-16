@@ -250,6 +250,7 @@ require 'config/config.php';
             text-overflow: ellipsis;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             min-height: 2.5em;
         }
@@ -366,12 +367,16 @@ require 'config/config.php';
         <?php
         /*
          * Fetch Categories with Product Count
+         * Sort by product count descending (most products first)
          */
         $cat_sql = "
             SELECT c.category_id, c.category_name, 
-                   (SELECT COUNT(*) FROM product) as product_count
+                   COUNT(p.product_id) as product_count
             FROM category c
-            ORDER BY c.category_name ASC
+            LEFT JOIN product p ON c.category_id = p.category_id
+            GROUP BY c.category_id, c.category_name
+            HAVING product_count > 0
+            ORDER BY product_count DESC, c.category_name ASC
         ";
         $cat_result = mysqli_query($conn, $cat_sql);
         
@@ -444,7 +449,7 @@ require 'config/config.php';
         /*
          * Fetch latest products for Latest Arrivals Section
          */
-        $sql = "SELECT * FROM product ORDER BY created_at DESC LIMIT 8";
+        $sql = "SELECT * FROM product ORDER BY created_at DESC LIMIT 9";
         $result = mysqli_query($conn, $sql);
         ?>
 
@@ -485,13 +490,10 @@ require 'config/config.php';
             $cat_name = $category['category_name'];
             $cat_id = $category['category_id'];
             
-            // Fetch products for this category
-            // Since products don't have category_id yet, we'll use product_name matching
-            // This is a temporary solution until you add category_id to products table
+            // Fetch products for this category using category_id
             $products_sql = "
                 SELECT * FROM product 
-                WHERE product_name LIKE '%" . mysqli_real_escape_string($conn, $cat_name) . "%'
-                   OR product_description LIKE '%" . mysqli_real_escape_string($conn, $cat_name) . "%'
+                WHERE category_id = " . intval($cat_id) . "
                 ORDER BY created_at DESC 
                 LIMIT 12
             ";
