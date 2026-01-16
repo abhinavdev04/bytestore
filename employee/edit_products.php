@@ -2,63 +2,6 @@
 session_start();
 require '../config/config.php';
 require '../includes/auth.php';
-require '../includes/product_handler.php';
-require '../includes/product_form.php';
-
-checkEmployeeLogin();
-
-$result = handleProductAction($conn, 'employee', $_SESSION['employee_id']);
-$success = $result['success'];
-$error = $result['error'];
-
-$sql = "SELECT * FROM product ORDER BY created_at DESC";
-$products_result = mysqli_query($conn, $sql);
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Products - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
-    
-    <div class="card">
-        <h2>Edit Products</h2>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo $success; ?></div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?php echo $error; ?></div>
-        <?php endif; ?>
-        
-        <a href="dashboard.php" class="btn btn-primary" style="margin-bottom: 20px;">Back to Dashboard</a>
-        
-        <div style="display: grid; gap: 20px;">
-            <?php while ($product = mysqli_fetch_assoc($products_result)): ?>
-                <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
-                    <?php renderProductForm($product, 'edit'); ?>
-                </div>
-            <?php endwhile; ?>
-        </div>
-    </div>
-    
-    <?php include '../includes/footer.php'; ?>
-</body>
-</html>
-
-
-extra code
-
-
-<?php
-session_start();
-require '../config/config.php';
-require '../includes/auth.php';
 
 checkEmployeeLogin();
 
