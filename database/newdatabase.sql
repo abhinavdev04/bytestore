@@ -103,7 +103,7 @@ INSERT INTO `category` (`category_id`, `category_name`) VALUES
 (18, 'Tablets'),
 (19, 'Wearables (Watches)'),
 (15, 'Webcams'),
-(24'Cameras');
+(24, 'Cameras');
 
 -- --------------------------------------------------------
 -- Table structure for table `product`
