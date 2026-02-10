@@ -22,8 +22,12 @@ while ($item = mysqli_fetch_assoc($cart_result)) {
 
 if (isset($_POST['place_order'])) {
     $shipping_address = mysqli_real_escape_string($conn, $_POST['shipping_address']);
+    $customer_phone = isset($_POST['customer_phone']) ? trim($_POST['customer_phone']) : '';
+    $customer_phone_escaped = mysqli_real_escape_string($conn, $customer_phone);
     
-    if (empty($cart_items)) {
+    if (empty($customer_phone)) {
+        $error = "Please enter your phone number.";
+    } elseif (empty($cart_items)) {
         $error = "Your cart is empty!";
     } else {
         foreach ($cart_items as $item) {
@@ -34,7 +38,10 @@ if (isset($_POST['place_order'])) {
         }
         
         if (!$error) {
-            if (mysqli_query($conn, "INSERT INTO orders (customer_id, total_amount, shipping_address, order_status, payment_status) VALUES ($customer_id, $total, '$shipping_address', 'Pending', 'Pending')")) {
+            // Save latest phone number to customer profile
+            mysqli_query($conn, "UPDATE customer SET customer_phone='$customer_phone_escaped' WHERE customer_id=$customer_id");
+
+            if (mysqli_query($conn, "INSERT INTO orders (customer_id, total_amount, shipping_address, customer_phone, order_status, payment_status) VALUES ($customer_id, $total, '$shipping_address', '$customer_phone_escaped', 'Pending', 'Pending')")) {
                 $order_id = mysqli_insert_id($conn);
                 
                 foreach ($cart_items as $item) {
@@ -110,6 +117,15 @@ if (isset($_POST['place_order'])) {
                     <div>
                         <h3>Shipping Information</h3>
                         <form method="POST">
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input
+                                    type="text"
+                                    name="customer_phone"
+                                    value="<?php echo htmlspecialchars($customer['customer_phone'] ?? ''); ?>"
+                                    required
+                                >
+                            </div>
                             <div class="form-group">
                                 <label>Shipping Address</label>
                                 <textarea name="shipping_address" rows="5" required><?php echo $customer['customer_address']; ?></textarea>

@@ -22,16 +22,20 @@ if (isset($_POST['register'])) {
     $name     = trim($_POST['name'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
+    $phone    = trim($_POST['phone'] ?? '');
     $address  = trim($_POST['address'] ?? '');
 
     if (!preg_match($emailPattern, $email)) {
         $error = "Invalid email format!";
     } elseif (!preg_match($passwordPattern, $password)) {
         $error = "Password must be at least 8 characters and include uppercase, lowercase, digit, and special character.";
+    } elseif ($phone === '') {
+        $error = "Phone number is required.";
     } else {
 
         $nameEsc    = mysqli_real_escape_string($conn, $name);
         $emailEsc   = mysqli_real_escape_string($conn, $email);
+        $phoneEsc   = mysqli_real_escape_string($conn, $phone);
         $addressEsc = mysqli_real_escape_string($conn, $address);
 
         // HASH PASSWORD
@@ -44,8 +48,8 @@ if (isset($_POST['register'])) {
             $error = "Email already registered!";
         } else {
             $insertSql = "
-                INSERT INTO customer (customer_name, customer_email, customer_password, customer_address)
-                VALUES ('$nameEsc', '$emailEsc', '$hashedPassword', '$addressEsc')
+                INSERT INTO customer (customer_name, customer_email, customer_password, customer_phone, customer_address)
+                VALUES ('$nameEsc', '$emailEsc', '$hashedPassword', '$phoneEsc', '$addressEsc')
             ";
 
             if (mysqli_query($conn, $insertSql)) {
@@ -88,6 +92,11 @@ if (isset($_POST['register'])) {
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone" required>
             </div>
             
             <div class="form-group">

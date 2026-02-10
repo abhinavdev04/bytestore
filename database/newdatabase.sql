@@ -26,6 +26,7 @@ CREATE TABLE `customer` (
   `customer_name` varchar(255) NOT NULL,
   `customer_password` varchar(255) NOT NULL,
   `customer_email` varchar(255) NOT NULL,
+  `customer_phone` varchar(30) NOT NULL,
   `customer_address` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`customer_id`),
@@ -33,14 +34,14 @@ CREATE TABLE `customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Sample customers
-INSERT INTO `customer` (`customer_name`, `customer_password`, `customer_email`, `customer_address`) VALUES
-('Akraj Customer', '$2y$10$d3FtmP5TpBKD8p/tmhtMoOtYfXnPiOTv1yf6oje6upUAKhgCPxPge', 'Akraj2024@bytestore.com', 'Bhaktapur,Nepal'),
-('Arpan Shopper', '$2y$10$MdqYBjr5XbwjhrAWq8BPs.DSC0pMx.GNqwnnClniRdpKEUfZh..gW', 'Arpan1@bytestore.com', 'Kalanki,Nepal'),
-('Pramisha Shopper', '$2y$10$JtVseoOkft5wvmhUwA1Hh.80LCz8CfKbN..ckMB9WFLmUvw/rmKmG', 'Pramisha1@bytestore.com', 'Butwal,Nepal'),
-('Sujit Shopper', '$2y$10$7ahVfFMdtdBguKxE9mrXGOME1YTX/M.eWpb0zv3ULkYuJQElIBD1a', 'Sujit1@bytestore.com', 'Lalitpur,Nepal'),
-('Sajal Shopper', '$2y$10$I3xtQG6TgrATvMQNUY3CVuTVpWo95FITDwau8Wj6tprRMsdDqSAZC', 'Sajal1@bytestore.com', 'Pokhara,Nepal'),
-('Rohan Shopper', '$2y$10$nUA74/qDP1NDXj9IRllAsOQL/i9jhUfiJUv8znuiQ7NYNyf9Ox17W', 'Rohan1@bytestore.com', 'Dharan,Nepal'),
-('Customer', '$2y$10$udpuzqhUnCkNS0NqcLLKD.SuN7wsJKFPVbmYgLkIBpMhLwweS2xd.', 'Customer1@bytestore.com', 'Example,Nepal')
+INSERT INTO `customer` (`customer_name`, `customer_password`, `customer_email`, `customer_phone`, `customer_address`) VALUES
+('Akraj Customer', '$2y$10$d3FtmP5TpBKD8p/tmhtMoOtYfXnPiOTv1yf6oje6upUAKhgCPxPge', 'Akraj2024@bytestore.com', '+9779800000001', 'Bhaktapur,Nepal'),
+('Arpan Shopper', '$2y$10$MdqYBjr5XbwjhrAWq8BPs.DSC0pMx.GNqwnnClniRdpKEUfZh..gW', 'Arpan1@bytestore.com', '+9779800000002', 'Kalanki,Nepal'),
+('Pramisha Shopper', '$2y$10$JtVseoOkft5wvmhUwA1Hh.80LCz8CfKbN..ckMB9WFLmUvw/rmKmG', 'Pramisha1@bytestore.com', '+9779800000003', 'Butwal,Nepal'),
+('Sujit Shopper', '$2y$10$7ahVfFMdtdBguKxE9mrXGOME1YTX/M.eWpb0zv3ULkYuJQElIBD1a', 'Sujit1@bytestore.com', '+9779800000004', 'Lalitpur,Nepal'),
+('Sajal Shopper', '$2y$10$I3xtQG6TgrATvMQNUY3CVuTVpWo95FITDwau8Wj6tprRMsdDqSAZC', 'Sajal1@bytestore.com', '+9779800000005', 'Pokhara,Nepal'),
+('Rohan Shopper', '$2y$10$nUA74/qDP1NDXj9IRllAsOQL/i9jhUfiJUv8znuiQ7NYNyf9Ox17W', 'Rohan1@bytestore.com', '+9779800000006', 'Dharan,Nepal'),
+('Customer', '$2y$10$udpuzqhUnCkNS0NqcLLKD.SuN7wsJKFPVbmYgLkIBpMhLwweS2xd.', 'Customer1@bytestore.com', '+9779800000007', 'Example,Nepal')
 ;
 
 -- --------------------------------------------------------
@@ -51,6 +52,7 @@ CREATE TABLE `employee` (
   `employee_name` varchar(255) NOT NULL,
   `employee_password` varchar(255) NOT NULL,
   `employee_email` varchar(255) NOT NULL,
+  `employee_phone` varchar(30) NOT NULL,
   `shop_name` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`employee_id`),
@@ -58,15 +60,15 @@ CREATE TABLE `employee` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Super admin (ID 1)
-INSERT INTO `employee` (`employee_name`, `employee_password`, `employee_email`, `shop_name`) VALUES
-('Super Admin', '$2y$10$fctJAfHmyWeB18bIaHb7b.hz2E7GqsC9/TYDhLbE3pODp67dxnRHi', 'Superadmin1@bytestore.com', 'Main Tech Store');
+INSERT INTO `employee` (`employee_name`, `employee_password`, `employee_email`, `employee_phone`, `shop_name`) VALUES
+('Super Admin', '$2y$10$fctJAfHmyWeB18bIaHb7b.hz2E7GqsC9/TYDhLbE3pODp67dxnRHi', 'Superadmin1@bytestore.com', '+9779801000001', 'Main Tech Store');
 
 -- Normal employee
-INSERT INTO `employee` (`employee_name`, `employee_password`, `employee_email`, `shop_name`) VALUES
-('Emp1', '$2y$10$3O5KGA9nxIc9fecmvXgZQ.6FHnxY9yB94nAWbU8LCneuUiDYTH9oO', 'Employee1@bytestore.com', 'Main Tech Store'),
-('Pratima Employee', '$2y$10$TVlh4ta/78ss8s99Ot.BAu29mv2wdvyoqa2F0lP9zBIQvxEKuPjwq', 'Pratima1@bytestore.com', 'Euro Store'),
-('Sunita Employee', '$2y$10$lsx6tQO6nnCdx8N24gHnQ.72dd1/wC3R05pO8hGXXghPV.fLoW.Fy', 'Sunita1@bytestore.com', 'Selective Store'),
-('Arjun Employee', '$2y$10$hf6qF80FXdHdJT1lfL/P/.lj2X8sztxLuoa73dzS.LCJcVeTQSkJW', 'Arjun1@bytestore.com', 'Dami Store');
+INSERT INTO `employee` (`employee_name`, `employee_password`, `employee_email`, `employee_phone`, `shop_name`) VALUES
+('Emp1', '$2y$10$3O5KGA9nxIc9fecmvXgZQ.6FHnxY9yB94nAWbU8LCneuUiDYTH9oO', 'Employee1@bytestore.com', '+9779801000002', 'Main Tech Store'),
+('Pratima Employee', '$2y$10$TVlh4ta/78ss8s99Ot.BAu29mv2wdvyoqa2F0lP9zBIQvxEKuPjwq', 'Pratima1@bytestore.com', '+9779801000003', 'Euro Store'),
+('Sunita Employee', '$2y$10$lsx6tQO6nnCdx8N24gHnQ.72dd1/wC3R05pO8hGXXghPV.fLoW.Fy', 'Sunita1@bytestore.com', '+9779801000004', 'Selective Store'),
+('Arjun Employee', '$2y$10$hf6qF80FXdHdJT1lfL/P/.lj2X8sztxLuoa73dzS.LCJcVeTQSkJW', 'Arjun1@bytestore.com', '+9779801000005', 'Dami Store');
 
 -- --------------------------------------------------------
 -- Table structure for table `product`
@@ -312,19 +314,20 @@ CREATE TABLE `orders` (
   `order_status` varchar(50) NOT NULL DEFAULT 'Pending',
   `payment_status` varchar(50) NOT NULL DEFAULT 'Pending',
   `shipping_address` text NOT NULL,
+  `customer_phone` varchar(30) NOT NULL,
   PRIMARY KEY (`order_id`),
   KEY `customer_id` (`customer_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Sample orders
-INSERT INTO `orders` (`order_id`, `customer_id`, `order_date`, `total_amount`, `order_status`, `payment_status`, `shipping_address`) VALUES
-(1, 4, '2025-06-07 10:35:49', 420000.00, 'Shipped', 'Payed', 'Lalitpur,Nepal'),
-(2, 1, '2026-01-08 03:46:14', 235998.00, 'Delivered', 'Pending', 'Bhaktapur,Nepal'),
-(3, 5, '2025-09-04 08:36:46', 46990.00, 'Shipped', 'Payed', 'Pokhara,Nepal'),
-(4, 3, '2025-07-09 05:27:14', 310000.00, 'Cancelled', 'Pending', 'Butwal,Nepal'),
-(5, 2, '2026-01-03 02:17:43', 180000.00, 'Pending', 'Pending', 'Kalanki,Nepal'),
-(6, 6, '2025-08-03 04:38:08', 330000.00, 'Processing', 'Pending', 'Dharan,Nepal');
+INSERT INTO `orders` (`order_id`, `customer_id`, `order_date`, `total_amount`, `order_status`, `payment_status`, `shipping_address`, `customer_phone`) VALUES
+(1, 4, '2025-06-07 10:35:49', 420000.00, 'Shipped', 'Payed', 'Lalitpur,Nepal', '+9779800000004'),
+(2, 1, '2026-01-08 03:46:14', 235998.00, 'Delivered', 'Pending', 'Bhaktapur,Nepal', '+9779800000001'),
+(3, 5, '2025-09-04 08:36:46', 46990.00, 'Shipped', 'Payed', 'Pokhara,Nepal', '+9779800000005'),
+(4, 3, '2025-07-09 05:27:14', 310000.00, 'Cancelled', 'Pending', 'Butwal,Nepal', '+9779800000003'),
+(5, 2, '2026-01-03 02:17:43', 180000.00, 'Pending', 'Pending', 'Kalanki,Nepal', '+9779800000002'),
+(6, 6, '2025-08-03 04:38:08', 330000.00, 'Processing', 'Pending', 'Dharan,Nepal', '+9779800000006');
 
 
 -- --------------------------------------------------------
