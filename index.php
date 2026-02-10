@@ -453,7 +453,7 @@ require 'config/config.php';
         $result = mysqli_query($conn, $sql);
         ?>
 
-        <h2 style="margin-top: 30px;background:rgba(88, 89, 92, 0.575);border: 1px solid #ddd;">Latest Arrivals</h2><br><br>
+        <h2 style="margin-top: 30px;background:rgb(38 53 98);border: 1px solid #ddd;color:white">Latest Arrivals</h2><br><br>
         <div class="product-grid">
             <?php while ($product = mysqli_fetch_assoc($result)): ?>
                 <div class="product-card">

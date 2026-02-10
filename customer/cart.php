@@ -96,7 +96,7 @@ $total = 0;
             </table>
             
             <div style="margin-top: 20px; text-align: right;">
-                <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                <a href="javascript:history.back()" class="btn btn-primary">Continue Shopping</a>
                 <a href="checkout.php" class="btn btn-success">Proceed to Checkout</a>
             </div>
         <?php else: ?>
