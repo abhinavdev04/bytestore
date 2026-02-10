@@ -1,5 +1,5 @@
     </div  >
-    <footer style="position: sticky;">
+    <footer class="site-footer">
            
                 
                     Your trusted source for tech in Nepal <br> <br>
@@ -22,7 +22,7 @@
                     <a href="https://www.viber.com/"style="  color: #FFFFFF; text-decoration: none;" target="_blank"  rel="noopener noreferrer">Viber</a><br><br>
                 
             
-             <p style=" flex: 1; border: 1px solid #ccc;  padding: 10px;">&copy; 2025 ByteStore - Tech E-Commerce System. All rights reserved.</p>
+             <p class="footer-note">&copy; 2025 ByteStore - Tech E-Commerce System. All rights reserved.</p>
              Product data is used strictly for educational and academic demonstration purposes.
     </footer>
 

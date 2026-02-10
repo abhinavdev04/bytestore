@@ -120,7 +120,8 @@ if (isset($_POST['place_order'])) {
                                 <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                                     <option>Cash on Delivery</option>
                                     <option disabled>Credit Card (Coming Soon)</option>
-                                    <option disabled>PayPal (Coming Soon)</option>
+                                    <option disabled>Esewa (Coming Soon)</option>
+                                    <option disabled>Khalti (Coming Soon)</option>
                                 </select>
                             </div>
                             

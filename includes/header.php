@@ -20,7 +20,21 @@ if (session_status() === PHP_SESSION_NONE) {
     <title>ByteStore - Tech E-Commerce</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body>
+<body class="loading">
+    <!-- Simple top loading bar to make page transitions feel smoother -->
+    <div id="page-loader">
+        <div class="loader-bar"></div>
+    </div>
+    <script>
+        // Very short fake loading delay so the page feels like it's loading
+        // without slowing the user down too much.
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                document.body.classList.remove('loading');
+                document.body.classList.add('loaded');
+            }, 250); // adjust this (in ms) if you want slightly longer/shorter
+        });
+    </script>
     <header>
         <nav>
             <!-- Logo always sends the user back to the public homepage -->

@@ -455,7 +455,7 @@ $products_result = mysqli_query($conn, $sql);
                                 </div>
 
                                 <div class="product-actions">
-                                    <button type="submit" name="update_product" class="btn btn-success">💾 Update</button>
+                                    <button type="submit" name="update_product" class="btn btn-success"> Update</button>
                                 </div>
                             </form>
 
@@ -463,7 +463,7 @@ $products_result = mysqli_query($conn, $sql);
                             <div class="product-actions">
                                 <a href="?delete=<?php echo $product['product_id']; ?>" 
                                    class="btn btn-danger" 
-                                   onclick="return confirm('Are you sure you want to delete this product?')">🗑️ Delete</a>
+                                   onclick="return confirm('Are you sure you want to delete this product?')"> Delete</a>
                             </div>
                         </div>
                     <?php endwhile; ?>

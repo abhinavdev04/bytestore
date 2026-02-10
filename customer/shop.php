@@ -24,9 +24,15 @@ $result = mysqli_query($conn, $sql);
         <h2>Browse Products</h2>
         
         <!-- Search Form -->
-        <form method="GET" style="margin-bottom: 20px;">
+        <form method="GET" class="shop-search-form">
             <div class="form-group">
-                <input type="text" name="search" placeholder="Search products..." value="<?php echo $search; ?>" style="display: inline-block; width: 70%;">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search products..."
+                    value="<?php echo $search; ?>"
+                    class="shop-search-input"
+                >
                 <button type="submit" class="btn btn-primary">Search</button>
                 <a href="shop.php" class="btn btn-warning">Clear</a>
             </div>
@@ -36,10 +42,18 @@ $result = mysqli_query($conn, $sql);
             <?php if (mysqli_num_rows($result) > 0): ?>
                 <?php while ($product = mysqli_fetch_assoc($result)): ?>
                     <div class="product-card">
-                        <img src="../<?php echo $product['product_image_path']; ?>" alt="<?php echo $product['product_name']; ?>" onerror="this.src='../assets/images/placeholder.jpg'">
+                        <a href="product.php?id=<?php echo $product['product_id']; ?>" class="product-card-link">
+                            <img src="../<?php echo $product['product_image_path']; ?>" alt="<?php echo $product['product_name']; ?>" onerror="this.src='../assets/images/placeholder.jpg'">
+                        </a>
                         <div class="product-card-body">
-                            <h3 style="min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;"><?php echo $product['product_name']; ?></h3>
-                            <p style="color: #7f8c8d; margin: 10px 0;min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;"><?php echo substr($product['product_description'], 0, 100); ?>...</p>
+                            <h3 style="min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;">
+                                <a href="product.php?id=<?php echo $product['product_id']; ?>" class="product-card-title-link">
+                                    <?php echo $product['product_name']; ?>
+                                </a>
+                            </h3>
+                            <p class="text-muted" style="margin: 10px 0;min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;">
+                                <?php echo substr($product['product_description'], 0, 100); ?>...
+                            </p>
                             <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
                             <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
                             
@@ -48,12 +62,19 @@ $result = mysqli_query($conn, $sql);
                                     <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
                                     <div class="form-group">
                                         <label>Quantity:</label>
-                                        <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['product_stock']; ?>" style="width: 80px;">
+                                        <input
+                                            type="number"
+                                            name="quantity"
+                                            value="1"
+                                            min="1"
+                                            max="<?php echo $product['product_stock']; ?>"
+                                            class="shop-quantity-input"
+                                        >
                                     </div>
-                                    <button type="submit" class="btn btn-success" style="width: 100%;">Add to Cart</button>
+                                    <button type="submit" class="btn btn-success shop-add-to-cart-button">Add to Cart</button>
                                 </form>
                             <?php else: ?>
-                                <button class="btn btn-danger" disabled style="width: 100%;">Out of Stock</button>
+                                <button class="btn btn-danger shop-add-to-cart-button" disabled>Out of Stock</button>
                             <?php endif; ?>
                         </div>
                     </div>
