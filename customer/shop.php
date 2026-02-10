@@ -6,8 +6,36 @@ require '../includes/auth.php';
 checkCustomerLogin();
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-$sql = $search ? "SELECT * FROM product WHERE product_name LIKE '%$search%' OR product_description LIKE '%$search%'" : "SELECT * FROM product ORDER BY created_at DESC";
+$category_id = isset($_GET['category']) ? (int) $_GET['category'] : 0;
+
+// Build dynamic WHERE conditions for search and category filtering
+$conditions = [];
+
+if ($search !== '') {
+    $conditions[] = "(product_name LIKE '%$search%' OR product_description LIKE '%$search%')";
+}
+
+if ($category_id > 0) {
+    $conditions[] = "category_id = $category_id";
+}
+
+$sql = "SELECT * FROM product";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY created_at DESC";
+
 $result = mysqli_query($conn, $sql);
+
+// Optional: fetch category name for heading when filtered
+$category_name = '';
+if ($category_id > 0) {
+    $cat_res = mysqli_query($conn, "SELECT category_name FROM category WHERE category_id = $category_id LIMIT 1");
+    if ($cat_res && mysqli_num_rows($cat_res) === 1) {
+        $row = mysqli_fetch_assoc($cat_res);
+        $category_name = $row['category_name'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,10 +49,18 @@ $result = mysqli_query($conn, $sql);
     <?php include '../includes/header.php'; ?>
     
     <div class="card">
-        <h2>Browse Products</h2>
+        <h2>
+            Browse Products
+            <?php if ($category_name): ?>
+                - <?php echo htmlspecialchars($category_name); ?>
+            <?php endif; ?>
+        </h2>
         
         <!-- Search Form -->
         <form method="GET" class="shop-search-form">
+            <?php if ($category_id > 0): ?>
+                <input type="hidden" name="category" value="<?php echo $category_id; ?>">
+            <?php endif; ?>
             <div class="form-group">
                 <input
                     type="text"

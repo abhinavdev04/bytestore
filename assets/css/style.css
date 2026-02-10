@@ -263,8 +263,10 @@ table tr:hover {
     color: inherit;
 }
 
-.product-card-title-link:hover {
-    text-decoration: underline;
+.product-card-title-link:hover,
+.product-card-title-link:active,
+.product-card-title-link:focus {
+    text-decoration: none;
 }
 
 /* Product detail layout */

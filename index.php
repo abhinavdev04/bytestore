@@ -457,17 +457,23 @@ require 'config/config.php';
         <div class="product-grid">
             <?php while ($product = mysqli_fetch_assoc($result)): ?>
                 <div class="product-card">
-                    <img src="<?php echo $product['product_image_path']; ?>"
-                         alt="<?php echo $product['product_name']; ?>"
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                    <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $product['product_id'] : 'customer/login.php'; ?>" class="product-card-link">
+                        <img src="<?php echo $product['product_image_path']; ?>"
+                             alt="<?php echo $product['product_name']; ?>"
+                             onerror="this.src='assets/images/placeholder.jpg'">
+                    </a>
 
                     <div class="product-card-body">
-                        <h3><?php echo $product['product_name']; ?></h3>
+                        <h3>
+                            <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $product['product_id'] : 'customer/login.php'; ?>" class="product-card-title-link">
+                                <?php echo $product['product_name']; ?>
+                            </a>
+                        </h3>
                         <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
                         <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
 
                         <?php if (isset($_SESSION['customer_id'])): ?>
-                            <a href="customer/shop.php" class="btn btn-primary">View Details</a>
+                            <a href="customer/product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">View Details</a>
                         <?php else: ?>
                             <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
                         <?php endif; ?>
@@ -510,10 +516,15 @@ require 'config/config.php';
         <!-- Category Products Section -->
         <div class="category-products-section" style="margin-top: 40px;">
             <div class="categories-header">
-                <h2><?php echo htmlspecialchars($cat_name); ?></h2>
+                <h2>
+                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="category-heading-link">
+                        <?php echo htmlspecialchars($cat_name); ?>
+                    </a>
+                </h2>
                 <div class="categories-nav">
                     <button onclick="scrollCategoryProducts('<?php echo $unique_id; ?>', 'left')">❮</button>
                     <button onclick="scrollCategoryProducts('<?php echo $unique_id; ?>', 'right')">❯</button>
+                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="btn btn-primary" style="margin-left:10px;">View All</a>
                 </div>
             </div>
 
@@ -531,7 +542,7 @@ require 'config/config.php';
                                 <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
 
                                 <?php if (isset($_SESSION['customer_id'])): ?>
-                                    <a href="customer/shop.php?product_id=<?php echo $product['product_id']; ?>" class="btn btn-primary">View Details</a>
+                                    <a href="customer/product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">View Details</a>
                                 <?php else: ?>
                                     <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
                                 <?php endif; ?>
