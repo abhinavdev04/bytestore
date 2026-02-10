@@ -64,6 +64,7 @@ $order_statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']
                 <p><strong>Name:</strong> <?php echo $order['customer_name']; ?></p>
                 <p><strong>Email:</strong> <?php echo $order['customer_email']; ?></p>
                 <p><strong>Address:</strong> <?php echo $order['customer_address']; ?></p>
+                <p><strong>Phone:</strong> <?php echo $order['customer_phone']; ?></p>
             </div>
             <div>
                 <h3>Order Information</h3>

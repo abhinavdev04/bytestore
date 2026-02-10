@@ -464,9 +464,21 @@ require 'config/config.php';
                     </a>
 
                     <div class="product-card-body">
-                        <h3>
-                            <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $product['product_id'] : 'customer/login.php'; ?>" class="product-card-title-link">
-                                <?php echo $product['product_name']; ?>
+                       <h3 style="margin: 0 0 10px;">
+                            <a href="<?php echo isset($_SESSION['customer_id']) 
+                                ? 'customer/product.php?id=' . $product['product_id'] 
+                                : 'customer/login.php'; ?>"
+                            class="product-card-title-link"
+                            style="
+                                    display: -webkit-box;
+                                    -webkit-box-orient: vertical;
+                                    -webkit-line-clamp: 1;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    line-height: 1.4em;
+                                    max-height: 2.8em;
+                            ">
+                                <?php echo htmlspecialchars($product['product_name']); ?>
                             </a>
                         </h3>
                         <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
@@ -517,7 +529,7 @@ require 'config/config.php';
         <div class="category-products-section" style="margin-top: 40px;">
             <div class="categories-header">
                 <h2>
-                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="category-heading-link">
+                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="category-heading-link" style="text-decoration: none; color: black;">
                         <?php echo htmlspecialchars($cat_name); ?>
                     </a>
                 </h2>
