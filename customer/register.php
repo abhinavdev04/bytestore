@@ -15,7 +15,7 @@ $success = '';
 
 $emailPattern    = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
 $passwordPattern = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/";
-
+$phonePattern = "/^(\+977)?[9][6-9]\d{8}$/";
 
 if (isset($_POST['register'])) {
 
@@ -29,8 +29,8 @@ if (isset($_POST['register'])) {
         $error = "Invalid email format!";
     } elseif (!preg_match($passwordPattern, $password)) {
         $error = "Password must be at least 8 characters and include uppercase, lowercase, digit, and special character.";
-    } elseif ($phone === '') {
-        $error = "Phone number is required.";
+    } elseif (!preg_match($phonePattern, $phone)) {
+        $error = "Invalid phone number! Must be a valid Nepal number (e.g., 9801234567 or +9779801234567).";
     } else {
 
         $nameEsc    = mysqli_real_escape_string($conn, $name);
