@@ -73,12 +73,13 @@ $count_result = mysqli_query($conn, $count_sql);
 $total_products = mysqli_fetch_assoc($count_result)['total'];
 $total_pages = ceil($total_products / $per_page);
 
-$sql = "SELECT p.*, c.category_name 
-        FROM product p 
-        LEFT JOIN category c ON p.category_id = c.category_id 
+$sql = "SELECT p.*, c.category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.category_id
         $where_sql
-        ORDER BY p.created_at DESC 
-        LIMIT $per_page OFFSET $offset";
+        ORDER BY p.product_id DESC
+        LIMIT $offset, $per_page";
+
 $products_result = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>
@@ -402,7 +403,7 @@ $products_result = mysqli_query($conn, $sql);
             
             <!-- Products Grid -->
             <div class="products-grid">
-                <?php if (mysqli_num_rows($products_result) > 0): ?>
+                <?php if ($products_result && mysqli_num_rows($products_result) > 0): ?>
                     <?php while ($product = mysqli_fetch_assoc($products_result)): ?>
                         <div class="product-card-edit">
                             <!-- Product Image -->
