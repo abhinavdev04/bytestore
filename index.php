@@ -278,7 +278,39 @@ require 'config/config.php';
 <header>
     <nav>
         <!-- Logo that refreshes the homepage -->
-        <div class="logo" onclick="window.location.href='index.php'">ByteStore</div>
+        <div 
+            class="logo" 
+            onclick="window.location.href='index.php'"
+            style="
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: inline-block;
+            "
+            onmouseover="this.style.textShadow='0 0 8px #00c6ff'"
+            onmouseout="this.style.textShadow='none'"
+            >
+            <span style="color:#00c6ff;">Byte</span><span style="color:#ffffff;">Store</span>
+
+            <script>
+                (function(){
+                const logo = document.currentScript.parentElement;
+
+                window.addEventListener("scroll", function () {
+                    if (window.scrollY > 50) {
+                    logo.style.fontSize = "20px";
+                    logo.style.letterSpacing = "0.5px";
+                    } else {
+                    logo.style.fontSize = "28px";
+                    logo.style.letterSpacing = "1px";
+                    }
+                });
+                })();
+            </script>
+        </div>
         <ul>
             <!-- Home is always active on this page -->
             <li><a href="index.php" class="active">Home</a></li>

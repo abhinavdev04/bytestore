@@ -520,12 +520,13 @@ footer {
     /* Top Ordered Products Auto-Scroll Banner */
 
         .fade-banner {
+            color: white;
             position: relative;
             width: 100%;
             height: 320px;
             border-radius: 8px;
             overflow: hidden;
-            background: rgba(88, 89, 92, 0.575);
+            background: #123B64;
             border: 1px solid #ddd;
             margin-bottom: 30px;
         }
