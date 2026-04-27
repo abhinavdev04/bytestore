@@ -38,7 +38,31 @@ if (session_status() === PHP_SESSION_NONE) {
     <header>
         <nav>
             <!-- Logo always sends the user back to the public homepage -->
-            <div class="logo" onclick="window.location.href='../index.php'">ByteStore</div>
+            <div class="logo" onclick="window.location.href='../index.php'">
+
+            <div 
+            class="logo" 
+            onclick="window.location.href='index.php'"
+            style="
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: inline-block;
+            "
+            onmouseover="this.style.textShadow='0 0 8px #00c6ff'"
+            onmouseout="this.style.textShadow='none'"
+            >
+            <span style="color:#00c6ff;">Byte</span><span style="color:#ffffff;">Store</span>
+</div>
+
+
+
+
+
+            </div>
             <ul>
                 <?php 
                 // Determine which folder we are in (customer / employee / root)
