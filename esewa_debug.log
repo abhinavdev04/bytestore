@@ -75,3 +75,109 @@ POST: Array
 (
 )
 
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:36:22
+Full URL: http://localhost/bytestore/customer/esewa_failure.php
+GET: Array
+(
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:48:53
+Full URL: http://localhost/bytestore/customer/esewa_failure.php
+GET: Array
+(
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:49:06
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:50:12
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:50:33
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:51:22
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:51:26
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:51:54
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+
+=== eSewa Failure Debug ===
+Time: 2026-04-30 05:51:56
+Full URL: http://localhost/bytestore/customer/esewa_failure.php?reason=no_data
+GET: Array
+(
+    [reason] => no_data
+)
+
+POST: Array
+(
+)
+

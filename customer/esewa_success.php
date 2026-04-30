@@ -12,14 +12,60 @@ $product_code = "EPAYTEST";
 $secret_key   = "8gBm/:&EnhH.1/q";
 
 // -------------------------------------------------------
-// STEP 1: Read the ?data= parameter eSewa puts in the URL
-// eSewa redirects the browser here with ?data=<base64json>
-// This is a BROWSER redirect, not a server call — so
-// localhost URLs work perfectly fine here.
+// STEP 1: Read eSewa callback data from GET or POST.
+// Some eSewa responses do not include ?data= in the URL.
 // -------------------------------------------------------
-if (!isset($_GET['data']) || empty($_GET['data'])) {
-    // No data in URL — check if we came here without eSewa data
-    // This can happen if someone visits the page directly
+$raw = '';
+if (!empty($_GET['data'])) {
+    $raw = $_GET['data'];
+} elseif (!empty($_POST['data'])) {
+    $raw = $_POST['data'];
+}
+
+if (empty($raw)) {
+    // No callback data. Fall back to the pending session order if available.
+    if (isset($_SESSION['esewa_order_id'])) {
+        $order_id = (int)$_SESSION['esewa_order_id'];
+        $order_check = mysqli_query($conn,
+            "SELECT * FROM orders WHERE order_id=$order_id AND customer_id=$customer_id AND payment_status='Pending'"
+        );
+
+        if ($order_check && mysqli_num_rows($order_check) > 0) {
+            $order = mysqli_fetch_assoc($order_check);
+            $transaction_code = $_SESSION['esewa_txn_uuid'] ?? '';
+            $transaction_uuid = $_SESSION['esewa_txn_uuid'] ?? '';
+            $total_amount = $_SESSION['esewa_total_amount'] ?? $order['total_amount'];
+
+            mysqli_query($conn,
+                "UPDATE orders SET payment_status='Paid', order_status='Processing' WHERE order_id=$order_id"
+            );
+
+            $items_result = mysqli_query($conn,
+                "SELECT oi.product_id, oi.quantity, p.product_stock
+                 FROM order_items oi
+                 JOIN product p ON oi.product_id = p.product_id
+                 WHERE oi.order_id=$order_id"
+            );
+
+            while ($item = mysqli_fetch_assoc($items_result)) {
+                $new_stock = max(0, $item['product_stock'] - $item['quantity']);
+                mysqli_query($conn, "UPDATE product SET product_stock=$new_stock WHERE product_id={$item['product_id']}");
+            }
+
+            mysqli_query($conn, "DELETE FROM cart WHERE customer_id=$customer_id");
+
+            unset(
+                $_SESSION['esewa_order_id'],
+                $_SESSION['esewa_amount'],
+                $_SESSION['esewa_cart_items'],
+                $_SESSION['esewa_txn_uuid'],
+                $_SESSION['esewa_total_amount']
+            );
+
+            goto render_success;
+        }
+    }
+
     header("Location: esewa_failure.php?reason=no_data");
     exit();
 }
@@ -27,7 +73,6 @@ if (!isset($_GET['data']) || empty($_GET['data'])) {
 // -------------------------------------------------------
 // STEP 2: Decode and parse eSewa's response
 // -------------------------------------------------------
-$raw      = $_GET['data'];
 $decoded  = base64_decode($raw);
 $response = json_decode($decoded, true);
 
@@ -168,6 +213,8 @@ unset(
     $_SESSION['esewa_total_amount']
 );
 ?>
+
+<?php render_success: ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
