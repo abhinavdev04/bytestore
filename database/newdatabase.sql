@@ -398,7 +398,10 @@ INSERT INTO `cart` (`cart_id`, `customer_id`, `product_id`, `quantity`, `created
 
 /*new data */;
 
-
+ALTER TABLE `orders`
+    ADD COLUMN `esewa_transaction_code` VARCHAR(100) DEFAULT NULL
+        COMMENT 'eSewa transaction code returned on successful payment'
+    AFTER `payment_status`;
 
 COMMIT;
 

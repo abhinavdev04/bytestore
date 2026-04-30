@@ -1,211 +1,172 @@
 # ByteStore - Project Summary
 
-## Project Overview
-ByteStore is a simple web-based e-commerce system for tech products, built as a BCS 4th Semester project. The system demonstrates CRUD operations and database relationships using PHP, MySQL, HTML, and CSS.
+## Overview
+ByteStore is an academic e-commerce application built with PHP and MySQL for a BCS 4th semester project. It provides a complete shopping workflow for customers and a staff-driven management interface for products, orders, customers, and employees.
 
 ## Technology Stack
-- **Backend**: PHP (Server-side logic)
-- **Database**: MySQL (Data storage)
-- **Frontend**: HTML, CSS (User interface)
-- **Server**: XAMPP (Apache + MySQL)
+- **Backend**: PHP
+- **Database**: MySQL
+- **Frontend**: HTML, CSS
+- **Local Server**: XAMPP (Apache + MySQL)
 
-## Key Features Implemented
+## Implemented Features
 
-### Customer Features ✅
-- ✅ User Registration
-- ✅ User Login
-- ✅ Browse Products
-- ✅ Search Products
-- ✅ Add to Cart
-- ✅ View Cart
-- ✅ Update Cart Quantity
-- ✅ Remove from Cart
-- ✅ Place Orders
-- ✅ Checkout Process
+### Customer Features
+- Customer registration and login
+- Product browsing and search
+- Product detail view
+- Add products to cart
+- View and update cart
+- Remove cart items
+- Checkout and place orders
 
-### Admin Features ✅
-- ✅ Admin Login
-- ✅ Admin Dashboard (with statistics)
-- ✅ Manage Products (Add, Edit, Delete)
-- ✅ Manage Customers (View, Delete)
-- ✅ Manage Employees (Add, Delete)
-- ✅ View All Orders
-- ✅ View Order Details
+### Staff Features
+- Staff login
+- Staff dashboard with statistics
+- Add new products
+- Edit existing products
+- Delete products
+- Manage customer records
+- Manage employee accounts
+- View orders and order details
 
-### Employee Features ✅
-- ✅ Employee Login
-- ✅ Employee Dashboard
-- ✅ Add Products
-- ✅ Edit Products
-- ✅ Delete Products
-- ✅ View Orders
-- ✅ View Order Details
+## Data Model and Relationships
 
-## Database Relations Implemented
+- **Customers** can place **orders**.
+- **Orders** are associated with **products** through order detail records.
+- **Staff** users manage products, customers, employees, and orders from the staff dashboard.
 
-1. **Customer Orders Product**
-   - Implemented via `orders` and `order_items` tables
-   - Foreign key: `customer_id` → `customer.customer_id`
-   - Foreign key: `product_id` → `product.product_id`
-
-2. **Employee Manages Product**
-   - Implemented via `employee_manages_product` table
-   - Logs all employee actions (ADD, UPDATE, DELETE)
-   - Foreign keys: `employee_id`, `product_id`
-
-
-
-## CRUD Operations
+## CRUD Coverage
 
 ### Products
-- **Create**: ✅ Admin and Employee can add products
-- **Read**: ✅ All users can view products
-- **Update**: ✅ Admin and Employee can edit products
-- **Delete**: ✅ Admin and Employee can delete products
+- **Create**: Staff can add products
+- **Read**: Customers and staff can view products
+- **Update**: Staff can edit products
+- **Delete**: Staff can delete products
 
 ### Customers
-- **Create**: ✅ Customers can register themselves
-- **Read**: ✅ Admin can view all customers
-- **Update**: ⚠️ Not implemented (can be added)
-- **Delete**: ✅ Admin can delete customers
+- **Create**: Customer registration page
+- **Read**: Staff can view customer records
+- **Update**: Not implemented in the current UI
+- **Delete**: Staff can delete customer records
 
 ### Employees
-- **Create**: ✅ Admin can add employees
-- **Read**: ✅ Admin can view all employees
-- **Update**: ⚠️ Not implemented (can be added)
-- **Delete**: ✅ Admin can delete employees
+- **Create**: Staff can add employee accounts
+- **Read**: Staff can view employee records
+- **Update**: Staff can edit employee accounts
+- **Delete**: Staff can delete employee accounts
 
 ### Orders
-- **Create**: ✅ Customers can place orders
-- **Read**: ✅ Admin and Employee can view orders
-- **Update**: ⚠️ Not implemented (status updates can be added)
-- **Delete**: ⚠️ Not implemented (orders typically shouldn't be deleted)
+- **Create**: Customers can place orders
+- **Read**: Staff can view orders and order details
+- **Update**: Order status updates are limited in the current interface
+- **Delete**: Order deletion is not implemented
 
-## File Structure
+## Project Structure
 
 ```
 bytestore/
-├── admin/                    # Admin section
-│   ├── dashboard.php        # Admin dashboard
-│   ├── login.php            # Admin login
-│   ├── manage_products.php  # List all products
-│   ├── add_product.php      # Add new product
-│   ├── edit_product.php     # Edit product
-│   ├── manage_customers.php # Manage customers
-│   ├── manage_employees.php # Manage employees
-│   ├── view_orders.php      # View all orders
-│   └── order_details.php    # Order details
-│
-├── customer/                 # Customer section
-│   ├── register.php         # Customer registration
-│   ├── login.php           # Customer login
-│   ├── shop.php            # Browse products
-│   ├── cart.php            # Shopping cart
-│   ├── checkout.php        # Checkout process
-│   └── add_to_cart.php     # Add item to cart
-│
-├── employee/                # Employee section
-│   ├── login.php           # Employee login
-│   ├── dashboard.php       # Employee dashboard
-│   ├── add_products.php    # Add product
-│   ├── edit_products.php   # Edit products
-│   ├── delete_products.php # Delete products
-│   ├── view_orders.php     # View orders
-│   └── order_details.php   # Order details
-│
-├── assets/                  # Static files
-│   └── css/
-│       └── style.css       # Main stylesheet
-│
-├── config/                  # Configuration
-│   └── config.php          # Database connection
-│
-├── database/                # Database files
-│   └── bytestore.sql       # Database schema
-│
-├── includes/               # Shared files
-│   ├── header.php         # Page header
-│   ├── footer.php         # Page footer
-│   └── auth.php           # Authentication functions
-│
-├── index.php               # Homepage
-├── README.md              # Main documentation
-├── SETUP_GUIDE.md         # Setup instructions
-└── PROJECT_SUMMARY.md     # This file
+├── admin/                # Legacy admin support files
+│   └── logout.php
+├── assets/
+│   └── css/style.css
+|   └──images
+|   └──uploads
+├── config/
+│   └── config.php
+├── customer/
+│   ├── add_to_cart.php
+│   ├── cart.php
+│   ├── checkout.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── product.php
+│   ├── register.php
+│   └── shop.php
+├── database/
+│   └── bytestore.sql
+├── employee/
+│   ├── add_products.php
+│   ├── dashboard.php
+│   ├── delete_products.php
+│   ├── edit_products.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── manage_customers.php
+│   ├── manage_employees.php
+│   ├── order_details.php
+│   └── view_orders.php
+├── includes/
+│   ├── auth.php
+│   ├── footer.php
+│   ├── header.php
+│   ├── logo.php
+│   ├── product_form.php
+│   └── product_handler.php
+├── index.php
+├── README.md
+├── SETUP_GUIDE.md
+└── PROJECT_SUMMARY.md
 ```
-
-## Code Simplicity
-
-All code is kept simple and easy to understand:
-- No complex frameworks or libraries
-- Straightforward PHP code
-- Simple SQL queries
-- Basic HTML/CSS
-- Easy to explain in presentations
 
 ## Security Notes
 
-For academic purposes, the system uses:
-- MD5 password hashing (simple but not secure for production)
-- Basic session management
-- SQL injection protection via `mysqli_real_escape_string()`
+- Passwords are hashed using PHP `password_hash()`.
+- Login verification uses PHP `password_verify()`.
+- Input values are sanitized with `mysqli_real_escape_string()`.
+- This project is intended for academic use and should be hardened before production deployment.
 
-**For production**, you should:
-- Use `password_hash()` and `password_verify()`
-- Implement prepared statements
-- Add CSRF protection
-- Add input validation
-- Use HTTPS
+## Sample Data Included
 
-## Testing Checklist
+- 7 seeded customer accounts
+- 5 seeded staff accounts (including one super admin)
+- 24 seeded products
+- 6 seeded orders
 
-- [ ] Database imported successfully
-- [ ] Admin can login
-- [ ] Employee can login
-- [ ] Customer can register
-- [ ] Customer can login
-- [ ] Products can be added (Admin/Employee)
-- [ ] Products can be edited (Admin/Employee)
-- [ ] Products can be deleted (Admin/Employee)
-- [ ] Customer can browse products
-- [ ] Customer can search products
-- [ ] Customer can add to cart
-- [ ] Customer can view cart
-- [ ] Customer can update cart
-- [ ] Customer can place order
-- [ ] Admin can view orders
-- [ ] Employee can view orders
-- [ ] Admin can manage customers
-- [ ] Admin can manage employees
+## Known Limitations
 
-## Presentation Tips
+- No payment gateway integration
+- No advanced role separation beyond staff access
+- Customer profile editing is not implemented
+- Order status management is limited
+- UI could be improved for mobile responsiveness
 
-When explaining the code:
-1. Start with database structure (ER diagram)
-2. Explain the relations between tables
-3. Show CRUD operations with examples
-4. Demonstrate the user flow (register → login → shop → cart → checkout)
-5. Show admin/employee management features
-6. Explain the simple code structure
+## Recommended Enhancements
+
+- Add file upload support for product images
+- Add category filters and product sorting
+- Add customer profile pages and order history
+- Add a proper admin role and permissions hierarchy
+- Add CSRF protection and prepared statements
+- Enable HTTPS for production use
 
 ## Default Accounts
 
-**Admin:**
-- Email: admin@bytestore.com
-- Password: admin123
+### Staff
+- `Superadmin1@bytestore.com` / `Superadmin1@bytestore.com`
+- `Employee1@bytestore.com` / `Employee1@bytestore.com`
+- `Pratima1@bytestore.com` / `Pratima1@bytestore.com`
+- `Sunita1@bytestore.com` / `Sunita1@bytestore.com`
+- `Arjun1@bytestore.com` / `Arjun1@bytestore.com`
 
-**Employee:**
-- Email: employee@bytestore.com
-- Password: emp123
+### Customers
+- `Akraj2024@bytestore.com` / `Akraj2024@bytestore.com`
+- `Arpan1@bytestore.com` / `Arpan1@bytestore.com`
+- `Pramisha1@bytestore.com` / `Pramisha1@bytestore.com`
+- `Sujit1@bytestore.com` / `Sujit1@bytestore.com`
+- `Sajal1@bytestore.com` / `Sajal1@bytestore.com`
+- `Rohan1@bytestore.com` / `Rohan1@bytestore.com`
+- `Customer1@bytestore.com` / `Customer1@bytestore.com`
 
-## Project Status
+> All seeded account passwords are identical to their email addresses.
 
-✅ **Complete** - All required features implemented
-- All database relations working
-- All CRUD operations functional
-- All use cases implemented
-- Simple and clean code
-- Ready for presentation
+## Author
 
-Good luck with your project presentation!
+Abhinav Sapkota (002)
+4th Semester
+Advanced College of Engineering and Management
+
+## Supervisor
+
+Govinda Gautam
 
