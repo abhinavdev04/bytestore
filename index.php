@@ -354,20 +354,52 @@ require 'config/config.php';
         if (count($top_products) > 0):
         ?>
 
+        <?php
+        $gif_sql = "SELECT product_id, product_name, product_gif_path, product_image_path FROM product WHERE product_gif_path IS NOT NULL AND product_gif_path != '' LIMIT 10";
+        $gif_result = mysqli_query($conn, $gif_sql);
+        $gif_products = [];
+        if ($gif_result && mysqli_num_rows($gif_result) > 0) {
+            while ($r = mysqli_fetch_assoc($gif_result)) {
+                $gif_products[] = $r;
+            }
+        }
+        
+        if (count($gif_products) > 0):
+        ?>
+            <h2>Featured GIFs</h2>
+            <div class="gif-scroller" id="gifScroller">
+                <div class="gif-track">
+                    <?php foreach ($gif_products as $gp):
+                        $gplink = isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $gp['product_id'] : 'customer/login.php';
+                    ?>
+                        <div class="gif-item">
+                            <a href="<?php echo $gplink; ?>">
+                                <img src="<?php echo $gp['product_gif_path']; ?>" alt="<?php echo htmlspecialchars($gp['product_name']); ?>" onerror="this.src='assets/images/placeholder.jpg'">
+                            </a>
+                            <div class="gif-caption"><h3><?php echo htmlspecialchars($gp['product_name']); ?></h3></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <h2>Top Ordered Products</h2>
 
         <div class="fade-banner" id="fadeBanner">
-            <?php foreach ($top_products as $i => $top): ?>
+            <?php foreach ($top_products as $i => $top):
+                $link = isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $top['product_id'] : 'customer/login.php';
+            ?>
                 <div class="fade-slide <?php echo $i === 0 ? 'active' : ''; ?>">
                     <!-- LEFT IMAGE -->
                     <div class="fade-image">
-                        <img src="<?php echo $top['product_image_path']; ?>"
-                             onerror="this.src='assets/images/placeholder.jpg'">
+                        <a href="<?php echo $link; ?>">
+                            <img src="<?php echo $top['product_image_path']; ?>" onerror="this.src='assets/images/placeholder.jpg'">
+                        </a>
                     </div>
 
                     <!-- RIGHT INFO -->
                     <div class="fade-info">
-                        <h2><?php echo $top['product_name']; ?></h2>
+                        <h2><a href="<?php echo $link; ?>" style="color:inherit;text-decoration:none"><?php echo $top['product_name']; ?></a></h2>
                         <p>Sold: <?php echo $top['total_sold']; ?></p>
                         <p>Price: Rs. <?php echo number_format($top['product_price'], 2); ?></p>
                     </div>
@@ -404,29 +436,38 @@ require 'config/config.php';
             echo "<!-- Category query error: " . mysqli_error($conn) . " -->";
         }
 
-        // Category icon mapping
         $category_icons = [
-            'Laptops' => '💻',
-            'Desktops' => '🖥️',
-            'Gaming' => '🎮',
-            'Phones' => '📱',
-            'Tablets' => '📱',
-            'Wearables' => '⌚',
-            'Audio' => '🎧',
-            'Monitors' => '🖥️',
-            'Storage' => '💾',
-            'Processors' => '⚙️',
-            'Graphics Cards' => '🎨',
-            'Motherboards' => '🔧',
-            'Memory' => '🧠',
-            'Peripherals' => '🖱️',
-            'Networking' => '🌐',
-            'Printers' => '🖨️',
-            'Software' => '💿',
+            'Laptops' => '',
+            'Desktops' => '',
+            'Gaming' => '',
+            'Phones' => '',
+            'Tablets' => '',
+            'Wearables' => '',
+            'Audio' => '',
+            'Monitors' => '',
+            'Storage' => '',
+            'Processors' => '',
+            'Graphics Cards' => '',
+            'Motherboards' => '',
+            'Memory' => '',
+            'Peripherals' => '',
+            'Networking' => '',
+            'Printers' => '',
+            'Software' => '',
         ];
         ?>
 
-        <?php if ($cat_result && mysqli_num_rows($cat_result) > 0): ?>
+        <?php
+        // Convert categories result to an array so we can render a limited set and reuse later
+        $categories = [];
+        if ($cat_result && mysqli_num_rows($cat_result) > 0) {
+            while ($r = mysqli_fetch_assoc($cat_result)) {
+                $categories[] = $r;
+            }
+        }
+        ?>
+
+        <?php if (!empty($categories)): ?>
         <!-- Categories Section -->
         <div class="categories-section">
             <div class="categories-header">
@@ -439,29 +480,60 @@ require 'config/config.php';
 
             <div class="categories-scroll-container">
                 <div class="categories-scroll" id="categoriesScroll">
-                    <?php while ($category = mysqli_fetch_assoc($cat_result)): 
+                    <?php foreach ($categories as $idx => $category):
                         $cat_name = $category['category_name'];
-                        $icon = '📦'; // Default icon
-                        
-                        // Find matching icon
+                        $icon = '';
                         foreach ($category_icons as $key => $emoji) {
-                            if (stripos($cat_name, $key) !== false) {
-                                $icon = $emoji;
-                                break;
-                            }
+                            if (stripos($cat_name, $key) !== false) { $icon = $emoji; break; }
                         }
+                        $extra_class = $idx >= 5 ? ' extra-cat' : '';
+                        $extra_style = $idx >= 5 ? 'style="display:none;"' : '';
                     ?>
-                        <a href="customer/shop.php?category=<?php echo $category['category_id']; ?>" class="category-card">
+                        <a href="customer/shop.php?category=<?php echo $category['category_id']; ?>" class="category-card<?php echo $extra_class; ?>" <?php echo $extra_style; ?> >
                             <div class="category-icon"><?php echo $icon; ?></div>
                             <h3><?php echo $cat_name; ?></h3>
                             <p><?php echo $category['product_count']; ?> products</p>
                         </a>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
+            <?php if (count($categories) > 5): ?>
+                <div style="text-align:center;margin-top:12px;">
+                    <button id="showMoreCatsBtn" class="btn btn-secondary">Show more categories</button>
+                </div>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 
+
+        <?php
+        /* Recommended products (random selection) */
+        $rec_sql = "SELECT * FROM product ORDER BY RAND() LIMIT 8";
+        $rec_result = mysqli_query($conn, $rec_sql);
+        ?>
+
+        <?php if ($rec_result && mysqli_num_rows($rec_result) > 0): ?>
+            <h2 style="margin-top: 30px;">Recommended For You</h2>
+            <div class="product-grid">
+                <?php while ($rprod = mysqli_fetch_assoc($rec_result)): ?>
+                    <div class="product-card">
+                        <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $rprod['product_id'] : 'customer/login.php'; ?>">
+                            <img src="<?php echo $rprod['product_image_path']; ?>" onerror="this.src='assets/images/placeholder.jpg'">
+                        </a>
+                        <div class="product-card-body">
+                            <h3 style="margin:0 0 10px;"><a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $rprod['product_id'] : 'customer/login.php'; ?>" style="text-decoration:none;color:inherit"><?php echo htmlspecialchars($rprod['product_name']); ?></a></h3>
+                            <p class="price">Rs. <?php echo number_format($rprod['product_price'], 2); ?></p>
+                            <p class="stock">Stock: <?php echo (int)$rprod['product_stock']; ?></p>
+                            <?php if (isset($_SESSION['customer_id'])): ?>
+                                <a href="customer/product.php?id=<?php echo $rprod['product_id']; ?>" class="btn btn-primary">View Details</a>
+                            <?php else: ?>
+                                <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+        <?php endif; ?>
 
         <?php
         /*
@@ -519,10 +591,8 @@ require 'config/config.php';
          * Show latest 12 products for each category
          */
         
-        // Reset the categories result pointer
-        mysqli_data_seek($cat_result, 0);
-        
-        while ($category = mysqli_fetch_assoc($cat_result)):
+        // Iterate categories array collected earlier
+        foreach ($categories as $category):
             $cat_name = $category['category_name'];
             $cat_id = $category['category_id'];
             
@@ -583,7 +653,7 @@ require 'config/config.php';
             </div>
         </div>
 
-        <?php endwhile; ?>
+        <?php endforeach; ?>
 
         <div style="margin-top: 40px;">
             <?php if (!isset($_SESSION['customer_id']) && !isset($_SESSION['employee_id'])): ?>
@@ -677,6 +747,63 @@ function scrollCategoryProducts(categoryId, direction) {
         container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
 }
+
+// Show more categories toggle
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('showMoreCatsBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        const extras = document.querySelectorAll('.extra-cat');
+        const isHidden = extras.length > 0 && extras[0].style.display === 'none';
+        extras.forEach(e => e.style.display = isHidden ? 'flex' : 'none');
+        btn.textContent = isHidden ? 'Show fewer categories' : 'Show more categories';
+    });
+});
+    
+    (function(){
+        const scroller = document.getElementById('gifScroller');
+        if (!scroller) return;
+        const track = scroller.querySelector('.gif-track');
+        const items = scroller.querySelectorAll('.gif-item');
+        if (!items || items.length === 0) return;
+
+        let indexG = 0;
+        let timer = null;
+
+        function showG(i) {
+            const offset = i * scroller.clientWidth;
+            track.style.transform = 'translateX(-' + offset + 'px)';
+        }
+
+        // preload gifs
+        items.forEach(it => {
+            const img = it.querySelector('img');
+            if (img && img.src) {
+                const p = new Image(); p.src = img.src;
+            }
+        });
+
+        function startLoop() {
+            if (timer) clearTimeout(timer);
+            const active = items[indexG];
+            const dur = parseInt(active?.getAttribute('data-duration')) || 5000;
+            timer = setTimeout(function() {
+                indexG = (indexG + 1) % items.length;
+                showG(indexG);
+                startLoop();
+            }, dur);
+        }
+
+        scroller.addEventListener('mouseenter', function(){ if (timer) { clearTimeout(timer); timer = null; } });
+        scroller.addEventListener('mouseleave', function(){ if (!timer) startLoop(); });
+
+        window.addEventListener('resize', function(){ showG(indexG); });
+
+        // initialize
+        showG(0);
+        setTimeout(startLoop, 800);
+    })();
+
 </script>
 
 </body>

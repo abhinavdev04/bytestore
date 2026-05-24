@@ -1,0 +1,302 @@
+
+Mac mini M2
+The Mac mini with the M2 chip is Apple's small desktop for 2023. It has a 5nm M2 processor, making it great for everyday tasks, light creative work, and media activities.
+
+Select Color:
+Silver
+Select Variant:
+8 Core CPU / 10 Core GPU / 8GB RAM / 256GB SSD
+8 Core CPU / 10 Core GPU / 16GB RAM / 256GB SSD
+8 Core CPU / 10 Core GPU / 8GB RAM / 512GB SSD
+8 Core CPU / 10 Core GPU / 16GB RAM / 512GB SSD
+₨. 1,15,499
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Processor
+Vendor	Apple Silicon
+Model	M2
+Cores	8 (4P + 4E)
+Graphics
+Vendor	Apple
+Model	M2
+Cores	10
+Memory
+RAM	8GB LPDDR5
+Slots	Unified
+Upgradable	No
+Storage
+Storage	256GB NVMe (Onboard)
+Additional Storage	No
+Additional Slots	No
+Physical
+Material	Aluminum
+Weight	1.18 kg
+Dimensions (inches)	7.75 x 7.75 x 1.41
+Ports
+HDMI	1
+USB Type-A	2 (up to 5Gb/s)
+USB Type-C	2 (USB 4, with Thunderbolt™ 4 and DisplayPort)
+SD Card Reader	No
+Ethernet	1 (Gigabit Ethernet)
+Thunderbolt	Thunderbolt™ 4
+Headphone/Microphone Combo	1
+Connectivity
+WiFi	WiFi 6E
+Bluetooth	5.3
+Additional Features
+Speakers	Yes
+Power	150W 100–240V AC
+Model Number	MMFJ3ZP/A
+
+
+
+
+
+iPad Pro M5 11-inch (WiFi)
+The iPad Pro M5 (2025) is Apple’s most powerful iPad yet, featuring the M5 chip with up to 3.5x faster AI performance and 6.7x faster 3D rendering than previous models. It supports Wi-Fi 7, faster 5G, and has up to 16GB RAM. The device excels in graphics, multitasking, and professional creative workflows, with a stunning Ultra Retina XDR display and iPadOS 26 enhancements. It is available in 11-inch comes in space black and silver.
+
+Select Color:
+Space Black
+Silver
+Select Variant:
+256GB
+512GB
+1TB
+₨. 1,75,499
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Storage
+Storage	256GB SSD (Apple's Proprietary)
+Additional Storage	No
+Additional Slots	No
+Display
+Size	11-inch models available
+Type	Ultra Retina XDR display
+Refresh Rate	Up to 120Hz refresh rate (including external displays)
+Brightness	Extreme Dynamic Range for better clarity and highlights
+Processor
+Chip	Apple M5
+CPU	10-core (4 performance cores + 6 efficiency cores)
+GPU	10-core with third-generation ray-tracing engine
+Neural Engine	Integrated Neural Accelerator in each GPU core
+AI Performance	Up to 3.5x faster than M4 iPad Pro, 5.6x faster than M1
+Memory & Storage
+RAM	12GB standard, up to 16GB in higher capacity models
+Storage Options	From 128GB up to 2TB SSD
+Connectivity
+Wi-Fi	Wi-Fi 7 support with Apple N1 wireless chip
+Cellular	5G with new C1X modem offering up to 50% faster speeds
+Ports	USB-C with Thunderbolt 4 support
+Battery & Charging
+Battery Life	Improved for heavy cellular usage
+Charging	Fast charging supported
+Operating System
+- iPadOS 26 with AI-driven features and enhanced multitasking
+Color Options
+- Space Black
+- Silver
+Additional Features
+- Supports advanced graphics workflows including 3D rendering with ray tracing
+- Enhanced video editing and professional software optimization
+- Lightweight, ultra-portable design retained from previous generation
+
+
+
+MacBook Neo 13 A18 Pro
+The MacBook Neo 13, released in March 2026, features a 13-inch Liquid Retina display, an A18 Pro chip, 8GB RAM, and up to 16 hours of battery life. It offers 256GB SSD storage, a durable build in multiple colors, and includes a Magic Keyboard, 1080p FaceTime camera, and USB-C ports.
+
+Select Color:
+Silver
+Citrus
+indigo
+Blush
+Select Variant:
+8/256GB
+Coming soon! Contact us for more information.
+
+Specifications
+Chip	Apple A18 Pro (6‑core CPU, 5‑core GPU).
+RAM	8 GB unified memory .
+Storage	256 GB SSD.
+Display	13‑inch Liquid Retina, 2408×1506, up to 500 nits, P3 wide color.
+Weight	About 1.23 kg (2.7 lb), aluminum unibody.
+Ports	2 USB‑C ports (one USB 3, one USB 2), 3.5 mm headphone jack.
+Connectivity	Wi‑Fi 6E, Bluetooth 6.
+Battery	Up to 15–18 hours of light use, USB‑C charging.
+Camera	1080p FaceTime HD front camera.
+OS	Runs macOS, tuned for Apple Silicon efficiency.
+
+
+Macbook Pro 14 M5 Pro
+The 14-inch MacBook Pro (M5 Pro chip) features a 14.2-inch Liquid Retina XDR display, up to 22 hours of battery life, and a range of ports. With powerful processing capabilities and 24GB+ memory, it's ideal for video editing, 3D rendering, and machine learning.
+
+Select Color:
+Space Black
+Silver
+Select Variant:
+24/1TB
+Coming soon! Contact us for more information.
+
+Specifications
+Chip	M5 Pro with 15-core CPU (5 performance + 10 efficiency cores), 16-core GPU, 16-core Neural Engine.
+Display	14.2-inch Liquid Retina XDR (3024x1964 resolution, 120Hz ProMotion, up to 1600 nits HDR).
+Memory & Storage	Starts at 24GB unified memory, 1TB SSD (configurable higher).
+Battery Life	Up to 22 hours of video playback, fast charging support.
+Ports	3x Thunderbolt 5, MagSafe 3, HDMI 2.1, SDXC card slot, headphone jack.
+Audio & Camera	6-speaker system with Spatial Audio, 12MP Center Stage webcam.
+Connectivity	Wi-Fi 7, Bluetooth 6.0, Touch ID.
+Weight & Build	1.6 kg, aluminum unibody in Silver or Space Black.
+Performance	20% faster GPU vs M4 Pro, excels in AI, rendering, video editing.
+
+
+iPhone 17 Pro
+The iPhone 17 Pro features a 6.3-inch 120Hz OLED display, A19 Pro chip, triple 48MP cameras with 8x telephoto zoom, aerospace-grade aluminum body with vapor cooling, and the best battery life ever in an iPhone. It supports 5G, Wi-Fi 7, Bluetooth 6, USB-C, and runs iOS 26, making it Apple's most powerful and durable iPhone yet.
+
+Select Color:
+Silver
+Cosmic Orange
+Deep Blue
+Select Variant:
+256GB
+512GB
+1TB
+₨. 2,26,999
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Design & Build	Dimensions 150 x 71.9 x 8.75 mm, weight 206g, aerospace-grade 7000-series aluminum unibody with vapor chamber cooling, IP68 water and dust resistance.
+Display	6.3-inch Super Retina XDR OLED, 2622x1206 pixels (~460 ppi), 120Hz ProMotion, Always-On, Ceramic Shield 2 glass with 3x better scratch resistance, 3000 nits peak brightness, anti-reflective coating.
+Chipset & Performance	Apple A19 Pro (3nm process), 6-core CPU (2 performance + 4 efficiency), 6-core GPU, 16-core Neural Engine, 12GB LPDDR5X RAM.
+Storage	Options of 256GB, 512GB, and 1TB. Non-expandable.
+Rear Camera	Triple 48MP sensors including Main, Ultrawide, and Telephoto with 8x optical zoom (tetraprism design), Optical Image Stabilization (OIS), LED flash, digital zoom.
+Front Camera	18MP "Center Stage" with autofocus, supports 4K HDR video recording with stabilization.
+Video & Camera Features	Dolby Vision HDR, ProRes RAW, Apple Log 2, genlock for professional multi-camera synchronization.
+Battery & Charging	4252 mAh battery, up to 33 hours video playback, 25W wireless charging, fast wired charging with new 40W power adapter (50% charge in 20 minutes).
+Connectivity	Dual Nano SIM, 5G, 4G LTE, Wi-Fi 7, Bluetooth 6, Thread, NFC, GPS (multiple satellite systems), USB-C with USB3 data transfer.
+Operating System	iOS 26 with enhanced AI and security features.
+Colors Available	Cosmic Orange, Silver, Deep Blue.
+
+Apple iPhone 17e
+The iPhone 17e, launching in 2026, features a 6.1-inch OLED display, A19 chip, 8GB RAM, and a 48MP rear camera. It offers 256GB storage (up to 512GB), a 4005mAh battery, and is available in Black, White, and Soft Pink. Additional features include 5G, Wi-Fi 6E, and USB-C.
+
+Select Color:
+White
+Black
+Soft Pink
+Select Variant:
+256GB
+512GB
+₨. 1,26,499
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Design & Build
+Dimensions	146.7 x 71.5 x 7.8 mm.
+Weight	169 grams (5.96 ounces).
+Build	Aluminum frame, Ceramic Shield 2 front cover, glass back.
+Resistance	IP68 dust/water (up to 6m for 30 mins).
+Display
+Size	6.1-inch Super Retina XDR OLED.
+Resolution	2532 x 1170 pixels (~460 ppi).
+Features	HDR, True Tone, Wide color (P3), Haptic Touch, up to 1200 nits HDR brightness.
+Refresh Rate	60Hz; notch design (no Dynamic Island).
+Performance & Storage
+Chipset	Apple A19 (3nm process), 6-core CPU (2 performance + 4 efficiency), 4-core GPU, 16-core Neural Engine.
+RAM	8 GB.
+Modem	Apple C1X 5G.
+Camera
+Rear	48 MP Fusion main (f/1.6, 26mm wide, 1/2.55", PDAF, OIS, 2x Telephoto), digital zoom up to 10x; supports 4K 60fps Dolby Vision, Night mode, Portrait mode, Smart HDR 5, Panorama (63MP).
+Front	12 MP TrueDepth (f/1.9, autofocus), Retina Flash, Animoji/Memoji.
+Video	Spatial Audio, AI wind-noise reduction.
+Battery & Charging
+Capacity	4005 mAh.
+Wired	20W fast charging.
+Wireless	15W MagSafe-compatible.
+Connectivity & Other
+OS	iOS 26 (with Apple Intelligence).
+Wireless	5G, Wi-Fi 6E, Bluetooth 5.3, NFC, Ultra Wideband.
+Sensors	Face ID, Action button, stereo speakers.
+Ports	USB-C (USB 2 speeds)
+
+
+iPhone 17 Pro Max
+The iPhone 17 Pro Max is a 6.9-inch flagship with a 120Hz OLED display, A19 Pro chip, 12GB RAM, and a triple 48MP camera setup including an 8x telephoto zoom. It features a durable aluminum unibody with vapor chamber cooling, the longest battery life in an iPhone, and supports fast 25W charging via USB-C. Connectivity includes 5G, Wi-Fi 7, Bluetooth 6, and dual SIM with eSIM. It runs iOS 26 and offers storage options up to 2TB.
+
+Select Color:
+Silver
+Cosmic Orange
+Deep Blue
+Select Variant:
+256GB
+512GB
+1TB
+2TB
+₨. 4,09,999
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Design & Build	163.4 x 78 x 8.75 mm, 233g, aerospace-grade 7000-series aluminum, IP68 water and dust resistance, Ceramic Shield 2 on front and back.
+Display	6.9-inch Super Retina XDR OLED, 2868x1320 pixels (~460 ppi), 120Hz ProMotion, HDR, up to 3000 nits peak brightness.
+Processor	Apple A19 Pro chip (3nm), 6-core CPU & GPU, 16-core Neural Engine.
+Memory & Storage	12GB RAM, storage options 256GB, 512GB, 1TB, and 2TB (non-expandable).
+Camera System	Triple 48MP cameras (main, ultrawide, telephoto with 8x optical zoom and 40x digital zoom), LiDAR scanner, 18MP front camera with Center Stage and 4K HDR video.
+Battery	5088mAh battery, up to 33 hours video playback, 25W wireless charging, fast wired charging with 40W USB-C adapter.
+Connectivity	5G, Wi-Fi 7, Bluetooth 6, dual Nano SIM + eSIM, GPS (multi-band), USB-C with USB 3 transfer.
+Other Features	Face ID, LiDAR, Dynamic Island, Always-On display.
+Operating System	iOS 26.
+Colors	Cosmic Orange, Deep Blue, Silver.
+
+
+
+iPhone 17 Pro
+The iPhone 17 Pro features a 6.3-inch 120Hz OLED display, A19 Pro chip, triple 48MP cameras with 8x telephoto zoom, aerospace-grade aluminum body with vapor cooling, and the best battery life ever in an iPhone. It supports 5G, Wi-Fi 7, Bluetooth 6, USB-C, and runs iOS 26, making it Apple's most powerful and durable iPhone yet.
+
+Select Color:
+Silver
+Cosmic Orange
+Deep Blue
+Select Variant:
+256GB
+512GB
+1TB
+₨. 2,26,999
+Decrease quantity
+Quantity
+1
+Increase quantity
+
+Add to cart
+Specifications
+Design & Build	Dimensions 150 x 71.9 x 8.75 mm, weight 206g, aerospace-grade 7000-series aluminum unibody with vapor chamber cooling, IP68 water and dust resistance.
+Display	6.3-inch Super Retina XDR OLED, 2622x1206 pixels (~460 ppi), 120Hz ProMotion, Always-On, Ceramic Shield 2 glass with 3x better scratch resistance, 3000 nits peak brightness, anti-reflective coating.
+Chipset & Performance	Apple A19 Pro (3nm process), 6-core CPU (2 performance + 4 efficiency), 6-core GPU, 16-core Neural Engine, 12GB LPDDR5X RAM.
+Storage	Options of 256GB, 512GB, and 1TB. Non-expandable.
+Rear Camera	Triple 48MP sensors including Main, Ultrawide, and Telephoto with 8x optical zoom (tetraprism design), Optical Image Stabilization (OIS), LED flash, digital zoom.
+Front Camera	18MP "Center Stage" with autofocus, supports 4K HDR video recording with stabilization.
+Video & Camera Features	Dolby Vision HDR, ProRes RAW, Apple Log 2, genlock for professional multi-camera synchronization.
+Battery & Charging	4252 mAh battery, up to 33 hours video playback, 25W wireless charging, fast wired charging with new 40W power adapter (50% charge in 20 minutes).
+Connectivity	Dual Nano SIM, 5G, 4G LTE, Wi-Fi 7, Bluetooth 6, Thread, NFC, GPS (multiple satellite systems), USB-C with USB3 data transfer.
+Operating System	iOS 26 with enhanced AI and security features.
+Colors Available	Cosmic Orange, Silver, Deep Blue.

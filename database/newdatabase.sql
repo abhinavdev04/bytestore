@@ -398,6 +398,80 @@ INSERT INTO `cart` (`cart_id`, `customer_id`, `product_id`, `quantity`, `created
 
 /*new data */;
 
+-- --------------------------------------------------------
+-- Product variants table and sample variant data
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `product_variant` (
+  `variant_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `product_id` INT(11) NOT NULL,
+  `variant_name` VARCHAR(255) NOT NULL,
+  `variant_price` DECIMAL(10,2) NOT NULL,
+  `variant_stock` INT(11) NOT NULL DEFAULT 0,
+  `variant_sku` VARCHAR(100) DEFAULT NULL,
+  `variant_image_path` VARCHAR(500) DEFAULT NULL,
+  PRIMARY KEY (`variant_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `product_variant_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Sample improved descriptions for some popular products
+UPDATE `product` SET `product_description` = 'Microsoft Surface Pro 12 (2025) — a thin, light 2-in-1 with a 12-inch high-resolution PixelSense touchscreen, modern Snapdragon X-series CPU for long battery life, optional LTE/5G connectivity, and compatibility with Surface Pen and Type Cover. Ideal for creators and professionals who need a portable, versatile Windows device.' WHERE product_id = 153;
+
+UPDATE `product` SET `product_description` = 'Apple iPhone 15 Pro — Advanced Pro camera system, A17-series chipset, ProMotion display, and premium titanium frame. Available in multiple storage configurations and colors. Excellent performance for photography, gaming and AR experiences.' WHERE product_id = 2;
+
+UPDATE `product` SET `product_description` = 'Samsung Galaxy S24 — Flagship Android smartphone with a high-refresh AMOLED display, powerful Exynos/Snapdragon chipset, and pro-grade camera system. Available in multiple storage options.' WHERE product_id = 3;
+
+UPDATE `product` SET `product_description` = 'Apple MacBook Air M2 — Thin and light 13-inch laptop with Apple M2 chip, sharp Retina display, fanless design, and long battery life. Available in configurations with up to 16GB RAM and larger SSDs.' WHERE product_id = 6;
+
+UPDATE `product` SET `product_description` = 'iPad 10th Gen — 10.9-inch tablet with A14-class performance, great for media consumption, note-taking and light creative work. Available with Wi-Fi and cellular options and multiple storage sizes.' WHERE product_id = 13;
+
+UPDATE `product` SET `product_description` = 'Dell XPS 15 — Premium 15-inch laptop with a near-borderless InfinityEdge display, powerful CPU options, and configurable RAM and storage. Designed for professionals and content creators.' WHERE product_id = 1;
+
+UPDATE `product` SET `product_description` = 'ASUS ROG Strix — High-performance gaming laptop with the latest discrete GPU options, high-refresh display, aggressive cooling, and gamer-focused features.' WHERE product_id = 18;
+
+UPDATE `product` SET `product_description` = 'Portable SSD (Various Capacities) — Fast external NVMe/USB-C storage with high transfer speeds and compact form factor. Ideal for backup, media and content workflows.' WHERE product_id = 22;
+
+UPDATE `product` SET `product_description` = 'Apple AirPods Pro 2 — Active Noise Cancellation, spatial audio, and improved battery life with the wireless charging case. Comfortable in-ear fit for daily use.' WHERE product_id = 11;
+
+UPDATE `product` SET `product_description` = 'Sony WH-series Headphones — Over-ear wireless headphones with noise cancellation and premium audio tuning for immersive listening.' WHERE product_id = 9;
+
+-- Insert sample variants (storage / configuration / color) for representative products
+INSERT INTO `product_variant` (`product_id`, `variant_name`, `variant_price`, `variant_stock`, `variant_sku`, `variant_image_path`) VALUES
+(2, 'iPhone 15 Pro — 128GB', 190000.00, 10, 'IP15P-128', 'assets/uploads/products/iphone-128.jpg'),
+(2, 'iPhone 15 Pro — 256GB', 210000.00, 8, 'IP15P-256', 'assets/uploads/products/iphone-256.jpg'),
+(2, 'iPhone 15 Pro — 512GB', 240000.00, 5, 'IP15P-512', 'assets/uploads/products/iphone-512.jpg'),
+(3, 'Samsung S24 — 128GB', 180000.00, 12, 'SGS24-128', 'assets/uploads/products/samsung-128.jpg'),
+(3, 'Samsung S24 — 256GB', 195000.00, 10, 'SGS24-256', 'assets/uploads/products/samsung-256.jpg'),
+(6, 'MacBook Air M2 — 8GB / 256GB', 175000.00, 6, 'MBA-M2-8-256', 'assets/uploads/products/macbook_air_8_256.jpg'),
+(6, 'MacBook Air M2 — 16GB / 512GB', 215000.00, 4, 'MBA-M2-16-512', 'assets/uploads/products/macbook_air_16_512.jpg'),
+(13, 'iPad 10th Gen — 64GB Wi‑Fi', 95000.00, 10, 'IPAD10-64', 'assets/uploads/products/ipad10-64.jpg'),
+(13, 'iPad 10th Gen — 256GB Wi‑Fi', 125000.00, 6, 'IPAD10-256', 'assets/uploads/products/ipad10-256.jpg'),
+(22, 'Portable SSD — 512GB', 12000.00, 20, 'SSD-512', 'assets/uploads/products/ssd-512.jpg'),
+(22, 'Portable SSD — 1TB', 18000.00, 40, 'SSD-1TB', 'assets/uploads/products/ssd-1tb.jpg'),
+(22, 'Portable SSD — 2TB', 32000.00, 12, 'SSD-2TB', 'assets/uploads/products/ssd-2tb.jpg'),
+(153, 'Surface Pro 12 — 8GB / 128GB (Wi‑Fi)', 162499.00, 5, 'SP12-8-128', 'assets/uploads/products/microsoft-surface-pro-12-128.jpg'),
+(153, 'Surface Pro 12 — 16GB / 256GB', 192999.00, 3, 'SP12-16-256', 'assets/uploads/products/microsoft-surface-pro-12-256.jpg'),
+(153, 'Surface Pro 12 — 32GB / 512GB', 249999.00, 2, 'SP12-32-512', 'assets/uploads/products/microsoft-surface-pro-12-512.jpg'),
+(1, 'Dell XPS 15 — 16GB / 512GB', 230000.00, 4, 'DXPS15-16-512', 'assets/uploads/products/laptop1-16-512.jpg'),
+(1, 'Dell XPS 15 — 32GB / 1TB', 285000.00, 2, 'DXPS15-32-1TB', 'assets/uploads/products/laptop1-32-1tb.jpg'),
+(18, 'ROG Strix — Base (16GB / 1TB)', 245000.00, 5, 'ROG-BASE-16-1TB', 'assets/uploads/products/asus_rog_base.jpg'),
+(18, 'ROG Strix — Performance (32GB / 1TB)', 269999.00, 3, 'ROG-PERF-32-1TB', 'assets/uploads/products/asus_rog_perf.jpg'),
+(11, 'AirPods Pro 2 — Standard Case', 42000.00, 25, 'APRO2-ST', 'assets/uploads/products/airpods_standard.jpg'),
+(11, 'AirPods Pro 2 — MagSafe Case', 45000.00, 15, 'APRO2-MAG', 'assets/uploads/products/airpods_magsafe.jpg'),
+(9, 'Sony WH — Black', 58000.00, 12, 'SONYWH-BLK', 'assets/uploads/products/sony_headphone_black.jpg'),
+(9, 'Sony WH — Silver', 58000.00, 8, 'SONYWH-SLV', 'assets/uploads/products/sony_headphone_silver.jpg');
+
+-- Alter cart and order_items tables to store optional variant selection
+ALTER TABLE `cart` ADD COLUMN `variant_id` INT(11) NULL AFTER `product_id`, ADD KEY (`variant_id`);
+ALTER TABLE `order_items` ADD COLUMN `variant_id` INT(11) NULL AFTER `product_id`, ADD KEY (`variant_id`);
+
+-- Add foreign key constraints linking variant columns to product_variant
+ALTER TABLE `cart` ADD CONSTRAINT `cart_variant_ibfk_1` FOREIGN KEY (`variant_id`) REFERENCES `product_variant` (`variant_id`) ON DELETE SET NULL;
+ALTER TABLE `order_items` ADD CONSTRAINT `order_items_variant_ibfk_1` FOREIGN KEY (`variant_id`) REFERENCES `product_variant` (`variant_id`) ON DELETE SET NULL;
+
+-- End of variants and description updates
+
+
 ALTER TABLE `orders`
     ADD COLUMN `esewa_transaction_code` VARCHAR(100) DEFAULT NULL
         COMMENT 'eSewa transaction code returned on successful payment'

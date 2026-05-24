@@ -7,9 +7,20 @@ checkCustomerLogin();
 
 $customer_id = $_SESSION['customer_id'];
 
-// eSewa Sandbox config
-$product_code = "EPAYTEST";
-$secret_key   = "8gBm/:&EnhH.1/q";
+// Debug: log incoming callback (GET/POST/raw) for eSewa success handling
+$log_path = dirname(__DIR__) . '/esewa_debug.log';
+$debug_log  = "=== eSewa Success Debug ===\n";
+$debug_log .= "Time: " . date('Y-m-d H:i:s') . "\n";
+$debug_log .= "Full URL: http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n";
+$debug_log .= "GET: " . print_r($_GET, true) . "\n";
+$debug_log .= "POST: " . print_r($_POST, true) . "\n";
+$raw_input = file_get_contents('php://input');
+$debug_log .= "RAW_INPUT: " . ($raw_input ?: '(empty)') . "\n";
+file_put_contents($log_path, $debug_log, FILE_APPEND);
+
+// eSewa config from central config file
+$product_code = $ESEWA_PRODUCT_CODE ?? 'EPAYTEST';
+$secret_key   = $ESEWA_SECRET_KEY ?? '';
 
 // -------------------------------------------------------
 // STEP 1: Read eSewa callback data from GET or POST.
@@ -22,63 +33,109 @@ if (!empty($_GET['data'])) {
     $raw = $_POST['data'];
 }
 
+// If eSewa doesn't send ?data= but posts fields directly, accept them as a direct response
+$direct_response = null;
 if (empty($raw)) {
-    // No callback data. Fall back to the pending session order if available.
-    if (isset($_SESSION['esewa_order_id'])) {
-        $order_id = (int)$_SESSION['esewa_order_id'];
-        $order_check = mysqli_query($conn,
-            "SELECT * FROM orders WHERE order_id=$order_id AND customer_id=$customer_id AND payment_status='Pending'"
-        );
-
-        if ($order_check && mysqli_num_rows($order_check) > 0) {
-            $order = mysqli_fetch_assoc($order_check);
-            $transaction_code = $_SESSION['esewa_txn_uuid'] ?? '';
-            $transaction_uuid = $_SESSION['esewa_txn_uuid'] ?? '';
-            $total_amount = $_SESSION['esewa_total_amount'] ?? $order['total_amount'];
-
-            mysqli_query($conn,
-                "UPDATE orders SET payment_status='Paid', order_status='Processing' WHERE order_id=$order_id"
-            );
-
-            $items_result = mysqli_query($conn,
-                "SELECT oi.product_id, oi.quantity, p.product_stock
-                 FROM order_items oi
-                 JOIN product p ON oi.product_id = p.product_id
-                 WHERE oi.order_id=$order_id"
-            );
-
-            while ($item = mysqli_fetch_assoc($items_result)) {
-                $new_stock = max(0, $item['product_stock'] - $item['quantity']);
-                mysqli_query($conn, "UPDATE product SET product_stock=$new_stock WHERE product_id={$item['product_id']}");
-            }
-
-            mysqli_query($conn, "DELETE FROM cart WHERE customer_id=$customer_id");
-
-            unset(
-                $_SESSION['esewa_order_id'],
-                $_SESSION['esewa_amount'],
-                $_SESSION['esewa_cart_items'],
-                $_SESSION['esewa_txn_uuid'],
-                $_SESSION['esewa_total_amount']
-            );
-
-            goto render_success;
-        }
+    if (!empty($_POST) && (isset($_POST['transaction_uuid']) || isset($_POST['status']) || isset($_POST['total_amount']))) {
+        $direct_response = $_POST;
+    } elseif (!empty($_GET) && (isset($_GET['transaction_uuid']) || isset($_GET['status']) || isset($_GET['total_amount']))) {
+        $direct_response = $_GET;
     }
+}
 
-    header("Location: esewa_failure.php?reason=no_data");
-    exit();
+if ($direct_response !== null) {
+    $response = $direct_response;
+} else {
+    if (empty($raw)) {
+        // No callback data. Try server-side verification using session-stored txn_uuid
+        if (isset($_SESSION['esewa_order_id'])) {
+            $order_id = (int)$_SESSION['esewa_order_id'];
+            $transaction_uuid = $_SESSION['esewa_txn_uuid'] ?? '';
+            $total_amount = $_SESSION['esewa_total_amount'] ?? '';
+
+            // Log attempt
+            file_put_contents($log_path, "=== eSewa Server Verify Attempt ===\nTime: " . date('Y-m-d H:i:s') . "\nTxn: $transaction_uuid\nAmount: $total_amount\n", FILE_APPEND);
+
+            // Build status URL and call eSewa status API
+            $amount_clean = str_replace(',', '', $total_amount);
+            $status_url   = ($ESEWA_STATUS_URL ?? 'https://rc.esewa.com.np/api/epay/transaction/status/')
+                          . "?product_code=" . urlencode($product_code)
+                          . "&transaction_uuid=" . urlencode($transaction_uuid)
+                          . "&total_amount=" . urlencode($amount_clean);
+
+            $ch = curl_init($status_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+            $api_response = curl_exec($ch);
+            $curl_error   = curl_error($ch);
+            $http_code    = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            file_put_contents($log_path, "Status URL: $status_url\nHTTP Code: $http_code\nResponse: " . ($api_response ?: '(empty)') . "\nCurl Error: $curl_error\n", FILE_APPEND);
+
+            $api_data   = json_decode($api_response, true);
+            $api_status = $api_data['status'] ?? '';
+
+            if ($http_code === 200 && $api_status === 'COMPLETE') {
+                // Confirm order exists and is pending
+                $order_check = mysqli_query($conn,
+                    "SELECT * FROM orders WHERE order_id=$order_id AND customer_id=$customer_id AND payment_status='Pending'"
+                );
+
+                if ($order_check && mysqli_num_rows($order_check) > 0) {
+                    // Finalize order
+                    mysqli_query($conn,
+                        "UPDATE orders SET payment_status='Paid', order_status='Processing' WHERE order_id=$order_id"
+                    );
+
+                    $items_result = mysqli_query($conn,
+                        "SELECT oi.product_id, oi.quantity, p.product_stock
+                         FROM order_items oi
+                         JOIN product p ON oi.product_id = p.product_id
+                         WHERE oi.order_id=$order_id"
+                    );
+
+                    while ($item = mysqli_fetch_assoc($items_result)) {
+                        $new_stock = max(0, $item['product_stock'] - $item['quantity']);
+                        mysqli_query($conn, "UPDATE product SET product_stock=$new_stock WHERE product_id={$item['product_id']}");
+                    }
+
+                    mysqli_query($conn, "DELETE FROM cart WHERE customer_id=$customer_id");
+
+                    unset(
+                        $_SESSION['esewa_order_id'],
+                        $_SESSION['esewa_amount'],
+                        $_SESSION['esewa_cart_items'],
+                        $_SESSION['esewa_txn_uuid'],
+                        $_SESSION['esewa_total_amount']
+                    );
+
+                    goto render_success;
+                } else {
+                    header("Location: esewa_failure.php?reason=order_not_found");
+                    exit();
+                }
+            }
+        }
+
+        header("Location: esewa_failure.php?reason=no_data");
+        exit();
+    }
 }
 
 // -------------------------------------------------------
-// STEP 2: Decode and parse eSewa's response
+// STEP 2: Decode and parse eSewa's response (if not already set)
 // -------------------------------------------------------
-$decoded  = base64_decode($raw);
-$response = json_decode($decoded, true);
+if (!isset($response)) {
+    $decoded  = base64_decode($raw);
+    $response = json_decode($decoded, true);
 
-if (!$response) {
-    header("Location: esewa_failure.php?reason=decode_failed");
-    exit();
+    if (!$response) {
+        header("Location: esewa_failure.php?reason=decode_failed");
+        exit();
+    }
 }
 
 $status           = $response['status']             ?? '';
