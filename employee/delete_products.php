@@ -30,17 +30,10 @@ if (isset($_GET['delete'])) {
 
 // Load all products to display in table
 $result = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC");
+$page_title = 'Delete Products';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Products - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
     
     <div class="card">
         <h2>Delete Products</h2>
@@ -86,7 +79,8 @@ $result = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC");
                         <td>
                             <a href="delete_products.php?delete=<?php echo $product['product_id']; ?>" 
                                class="btn btn-danger" 
-                               onclick="return confirm('Are you sure you want to delete this product? This action cannot be undone!')">Delete</a>
+                               data-confirm="Are you sure you want to delete this product? This action cannot be undone!"
+                               data-confirm-title="Delete Product">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -95,6 +89,4 @@ $result = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC");
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>
 

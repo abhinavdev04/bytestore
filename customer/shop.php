@@ -2,125 +2,175 @@
 session_start();
 require '../config/config.php';
 require '../includes/auth.php';
+require '../includes/functions.php';
 
 checkCustomerLogin();
 
-$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-$category_id = isset($_GET['category']) ? (int) $_GET['category'] : 0;
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
+$category_id = sanitizeInt($_GET['category'] ?? 0);
+$brand_filter = isset($_GET['brand']) ? mysqli_real_escape_string($conn, $_GET['brand']) : '';
+$min_price = sanitizeInt($_GET['min_price'] ?? 0);
+$max_price = sanitizeInt($_GET['max_price'] ?? 0);
+$min_rating = sanitizeInt($_GET['min_rating'] ?? 0);
+$in_stock = isset($_GET['in_stock']);
+$sort = $_GET['sort'] ?? 'newest';
 
-// Build dynamic WHERE conditions for search and category filtering
 $conditions = [];
+if ($search !== '') $conditions[] = "(p.product_name LIKE '%$search%' OR p.product_description LIKE '%$search%' OR p.brand LIKE '%$search%')";
+if ($category_id > 0) $conditions[] = "p.category_id = $category_id";
+if ($brand_filter !== '') $conditions[] = "p.brand = '$brand_filter'";
+if ($min_price > 0) $conditions[] = "p.product_price >= $min_price";
+if ($max_price > 0) $conditions[] = "p.product_price <= $max_price";
+if ($min_rating > 0) $conditions[] = "p.rating_avg >= $min_rating";
+if ($in_stock) $conditions[] = "p.product_stock > 0";
 
-if ($search !== '') {
-    $conditions[] = "(product_name LIKE '%$search%' OR product_description LIKE '%$search%')";
+$order_by = 'p.created_at DESC';
+switch ($sort) {
+    case 'price_low': $order_by = 'p.product_price ASC'; break;
+    case 'price_high': $order_by = 'p.product_price DESC'; break;
+    case 'rating': $order_by = 'p.rating_avg DESC'; break;
+    case 'bestseller': $order_by = 'total_sold DESC'; break;
+    case 'newest': $order_by = 'p.created_at DESC'; break;
 }
 
-if ($category_id > 0) {
-    $conditions[] = "category_id = $category_id";
-}
+$join_orders = ($sort === 'bestseller') ? " LEFT JOIN order_items oi ON p.product_id = oi.product_id" : "";
+$group_by = ($sort === 'bestseller') ? " GROUP BY p.product_id" : "";
+$select_extra = ($sort === 'bestseller') ? ", COALESCE(SUM(oi.quantity),0) as total_sold" : "";
 
-$sql = "SELECT * FROM product";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " ORDER BY created_at DESC";
+$sql = "SELECT p.* $select_extra FROM product p $join_orders";
+if (!empty($conditions)) $sql .= " WHERE " . implode(' AND ', $conditions);
+$sql .= $group_by . " ORDER BY $order_by";
 
 $result = mysqli_query($conn, $sql);
 
-// Optional: fetch category name for heading when filtered
 $category_name = '';
 if ($category_id > 0) {
     $cat_res = mysqli_query($conn, "SELECT category_name FROM category WHERE category_id = $category_id LIMIT 1");
-    if ($cat_res && mysqli_num_rows($cat_res) === 1) {
-        $row = mysqli_fetch_assoc($cat_res);
-        $category_name = $row['category_name'];
-    }
+    if ($cat_res && $row = mysqli_fetch_assoc($cat_res)) $category_name = $row['category_name'];
 }
+
+$categories = getCategories($conn);
+$brands_res = mysqli_query($conn, "SELECT DISTINCT brand FROM product WHERE brand IS NOT NULL AND brand != '' ORDER BY brand");
+$brands = [];
+if ($brands_res) while ($b = mysqli_fetch_assoc($brands_res)) $brands[] = $b['brand'];
+
+$page_title = $category_name ? $category_name : 'Shop';
+include '../includes/header.php';
+$breadcrumbs = [['label' => 'Home', 'url' => '../index.php'], ['label' => 'Shop', 'url' => 'shop.php']];
+if ($category_name) $breadcrumbs[] = ['label' => $category_name, 'url' => ''];
+echo renderBreadcrumbs($breadcrumbs);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
-    
-    <div class="card">
-        <h2>
-            Browse Products
-            <?php if ($category_name): ?>
-                - <?php echo htmlspecialchars($category_name); ?>
-            <?php endif; ?>
-        </h2>
-        
-        <!-- Search Form -->
-        <form method="GET" class="shop-search-form">
-            <?php if ($category_id > 0): ?>
-                <input type="hidden" name="category" value="<?php echo $category_id; ?>">
-            <?php endif; ?>
-            <div class="form-group">
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Search products..."
-                    value="<?php echo $search; ?>"
-                    class="shop-search-input"
-                >
-                <button type="submit" class="btn btn-primary">Search</button>
-                <a href="shop.php" class="btn btn-warning">Clear</a>
+
+<div class="shop-layout">
+    <aside class="shop-filters">
+        <h3 style="margin-bottom:1.25rem;">Filters</h3>
+        <form method="GET" id="filter-form">
+            <?php if ($search): ?><input type="hidden" name="search" value="<?php echo e($search); ?>"><?php endif; ?>
+
+            <div class="filter-group">
+                <div class="filter-group__title">Category</div>
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo (int)$cat['category_id']; ?>" <?php echo $category_id == $cat['category_id'] ? 'selected' : ''; ?>><?php echo e($cat['category_name']); ?> (<?php echo (int)$cat['product_count']; ?>)</option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-        </form>
-        
-        <div class="product-grid">
-            <?php if (mysqli_num_rows($result) > 0): ?>
-                <?php while ($product = mysqli_fetch_assoc($result)): ?>
-                    <div class="product-card">
-                        <a href="product.php?id=<?php echo $product['product_id']; ?>" class="product-card-link">
-                            <img src="../<?php echo $product['product_image_path']; ?>" alt="<?php echo $product['product_name']; ?>" onerror="this.src='../assets/images/placeholder.jpg'">
-                        </a>
-                        <div class="product-card-body">
-                            <h3 style="min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;">
-                                <a href="product.php?id=<?php echo $product['product_id']; ?>" class="product-card-title-link">
-                                    <?php echo $product['product_name']; ?>
-                                </a>
-                            </h3>
-                            <p class="text-muted" style="margin: 10px 0;min-height: 3em;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;">
-                                <?php echo substr($product['product_description'], 0, 100); ?>...
-                            </p>
-                            <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
-                            <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
-                            
-                            <?php if ($product['product_stock'] > 0): ?>
-                                <form method="POST" action="add_to_cart.php" style="margin-top: 10px;">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                                    <div class="form-group">
-                                        <label>Quantity:</label>
-                                        <input
-                                            type="number"
-                                            name="quantity"
-                                            value="1"
-                                            min="1"
-                                            max="<?php echo $product['product_stock']; ?>"
-                                            class="shop-quantity-input"
-                                        >
-                                    </div>
-                                    <button type="submit" class="btn btn-success shop-add-to-cart-button">Add to Cart</button>
-                                </form>
-                            <?php else: ?>
-                                <button class="btn btn-danger shop-add-to-cart-button" disabled>Out of Stock</button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p>No products found.</p>
+
+            <?php if (!empty($brands)): ?>
+            <div class="filter-group">
+                <div class="filter-group__title">Brand</div>
+                <?php foreach ($brands as $brand): ?>
+                    <label class="filter-option">
+                        <input type="radio" name="brand" value="<?php echo e($brand); ?>" <?php echo $brand_filter === $brand ? 'checked' : ''; ?> onchange="this.form.submit()">
+                        <?php echo e($brand); ?>
+                    </label>
+                <?php endforeach; ?>
+                <?php if ($brand_filter): ?><a href="?" style="font-size:0.8rem;">Clear brand</a><?php endif; ?>
+            </div>
             <?php endif; ?>
+
+            <div class="filter-group">
+                <div class="filter-group__title">Price Range (Rs.)</div>
+                <div class="form-row" style="grid-template-columns:1fr 1fr;">
+                    <input type="number" name="min_price" placeholder="Min" value="<?php echo $min_price ?: ''; ?>" class="form-input">
+                    <input type="number" name="max_price" placeholder="Max" value="<?php echo $max_price ?: ''; ?>" class="form-input">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-group__title">Minimum Rating</div>
+                <?php for ($r = 4; $r >= 1; $r--): ?>
+                    <label class="filter-option">
+                        <input type="radio" name="min_rating" value="<?php echo $r; ?>" <?php echo $min_rating == $r ? 'checked' : ''; ?> onchange="this.form.submit()">
+                        <?php echo renderStars($r); ?> & up
+                    </label>
+                <?php endfor; ?>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-option">
+                    <input type="checkbox" name="in_stock" <?php echo $in_stock ? 'checked' : ''; ?> onchange="this.form.submit()">
+                    In Stock Only
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--block">Apply Filters</button>
+            <a href="shop.php" class="btn btn--ghost btn--block" style="margin-top:0.5rem;">Clear All</a>
+        </form>
+    </aside>
+
+    <div>
+        <div class="card" style="padding:1.25rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1 style="font-size:1.5rem;"><?php echo $category_name ? e($category_name) : 'All Products'; ?></h1>
+                    <p class="text-muted"><?php echo $result ? mysqli_num_rows($result) : 0; ?> products found</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:center;">
+                    <form method="GET" style="display:flex;gap:0.5rem;">
+                        <?php foreach ($_GET as $k => $v): if ($k !== 'search' && $k !== 'sort'): ?>
+                            <input type="hidden" name="<?php echo e($k); ?>" value="<?php echo e($v); ?>">
+                        <?php endif; endforeach; ?>
+                        <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search..." class="form-input" style="width:200px;">
+                        <button type="submit" class="btn btn--primary btn--sm">Search</button>
+                    </form>
+                    <select onchange="location.href=this.value" class="form-select" style="width:auto;">
+                        <?php
+                        $sorts = ['newest'=>'Newest','price_low'=>'Price: Low to High','price_high'=>'Price: High to Low','rating'=>'Top Rated','bestseller'=>'Best Sellers'];
+                        $qs = $_GET; unset($qs['sort']);
+                        $base_qs = http_build_query($qs);
+                        foreach ($sorts as $val => $label):
+                            $url = 'shop.php?' . ($base_qs ? $base_qs . '&' : '') . 'sort=' . $val;
+                        ?>
+                            <option value="<?php echo e($url); ?>" <?php echo $sort === $val ? 'selected' : ''; ?>><?php echo e($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
         </div>
+
+    <div class="shop-products-area">
+        <div class="card" style="padding:1rem;margin-bottom:1rem;">
+            <div class="form-group" style="margin:0;">
+                <label for="shop-live-search"><i class="fa-solid fa-magnifying-glass"></i> Live Search</label>
+                <input type="search" id="shop-live-search" class="form-input" placeholder="Type to filter products instantly..." value="<?php echo e($search); ?>">
+            </div>
+        </div>
+
+        <?php if ($result && mysqli_num_rows($result) > 0): ?>
+            <div class="product-grid shop-live-results" id="shop-product-grid">
+                <?php while ($product = mysqli_fetch_assoc($result)): include '../includes/product_card.php'; endwhile; ?>
+            </div>
+        <?php else: ?>
+            <div class="empty-state">
+                <div class="empty-state__icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3 class="empty-state__title">No products found</h3>
+                <p class="empty-state__desc">Try adjusting your filters or search terms.</p>
+                <a href="shop.php" class="btn btn--primary">View All Products</a>
+            </div>
+        <?php endif; ?>
     </div>
-    
-    <?php include '../includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include '../includes/footer.php'; ?>

@@ -11,17 +11,10 @@ checkEmployeeLogin();
 $result = handleProductAction($conn, 'employee', $_SESSION['employee_id']);
 $success = $result['success'];
 $error = $result['error'];
+$page_title = 'Add Product';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
 
     <div class="card">
         <h2>Add New Product</h2>
@@ -68,5 +61,3 @@ $error = $result['error'];
     </div>
 
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>

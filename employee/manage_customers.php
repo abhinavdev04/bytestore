@@ -30,17 +30,10 @@ if (isset($_GET['delete'])) {
 
 // Get all customers
 $result = mysqli_query($conn, "SELECT * FROM customer ORDER BY created_at DESC");
+$page_title = 'Manage Customers';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Customers - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
     
     <div class="card">
         <h2>Manage Customers</h2>
@@ -85,7 +78,8 @@ $result = mysqli_query($conn, "SELECT * FROM customer ORDER BY created_at DESC")
                             if ($_SESSION['employee_id'] == 1): ?>
                                 <a href="manage_customers.php?delete=<?php echo $customer['customer_id']; ?>" 
                                class="btn btn-danger" 
-                               onclick="return confirm('Are you sure you want to delete this customer?')">
+                               data-confirm="Are you sure you want to delete this customer?"
+                               data-confirm-title="Delete Customer">
                                Delete
                             </a>
                             <?php endif; ?>
@@ -98,7 +92,5 @@ $result = mysqli_query($conn, "SELECT * FROM customer ORDER BY created_at DESC")
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>
 
 

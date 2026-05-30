@@ -1,0 +1,194 @@
+/* ByteStore Employee Panel — matches site design system */
+.employee-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.employee-page .card {
+    margin-bottom: 1.5rem;
+}
+
+.employee-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.employee-toolbar .admin-search-bar {
+    flex: 1;
+    min-width: 220px;
+    margin: 0;
+}
+
+.employee-toolbar input[type="text"],
+.employee-toolbar select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.employee-product-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.employee-product-card {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.employee-product-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.employee-product-card__media img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.employee-product-card__form {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.employee-form-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 140px) 1fr;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.employee-form-row label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.employee-form-row input,
+.employee-form-row textarea,
+.employee-form-row select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.employee-form-row textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.employee-product-card__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
+
+.employee-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.employee-stat {
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.employee-stat strong {
+    display: block;
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+}
+
+.variant-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.variant-form-grid .form-group--full {
+    grid-column: 1 / -1;
+}
+
+.variant-admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.variant-admin-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+}
+
+.variant-admin-card__preview img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.variant-admin-card__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .employee-product-card {
+        grid-template-columns: 1fr;
+    }
+    .employee-form-row {
+        grid-template-columns: 1fr;
+    }
+    .variant-admin-card {
+        grid-template-columns: 1fr;
+    }
+}

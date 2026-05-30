@@ -1,130 +1,86 @@
-# ByteStore - PHP E-Commerce Application
+# ByteStore
 
-ByteStore is a local e-commerce web application built with PHP, MySQL, HTML, and CSS for a BCS 4th semester project. It supports customer shopping, shopping cart checkout, and staff management of products, customers, and orders.
+ByteStore is a premium electronics e-commerce platform built for the Nepal market. It provides a full shopping experience for customers and a powerful management panel for staff, including analytics, inventory, discounts, variants, and customer support.
 
-## Key Features
+## Features
 
-### Customer Features
-- Customer registration and login
-- Browse products with search support
-- View product details
-- Add products to cart
-- Update item quantity and remove cart items
-- Checkout and place orders
+- User authentication (customers and employees)
+- Product catalog with categories and brands
+- Product variants (color, storage, RAM, etc.)
+- Wishlist and product comparison
+- Verified purchase reviews and ratings
+- Shopping cart and checkout
+- eSewa payment integration
+- Customer account dashboard
+- Employee admin dashboard with Chart.js analytics
+- Discount and sale management with countdown timers
+- Support ticket system
+- AI-style shopping chatbot
+- Dark mode / light mode
+- Live search (products, categories, brands)
 
-### Staff Features
-- Staff login and dashboard
-- Add new products
-- Edit existing products
-- Delete products
-- Manage customer records
-- Manage employee accounts
-- View orders and order details
-- Dashboard statistics for products, customers, employees, and orders
+## Technology Stack
 
-## Setup Instructions
+- PHP 8+
+- MySQL / MariaDB
+- HTML5, CSS3, JavaScript
+- Chart.js (admin analytics)
+- Font Awesome 6
 
-1. Copy the `bytestore` folder into `C:\xampp\htdocs\`
-2. Start Apache and MySQL in the XAMPP Control Panel
-3. Open phpMyAdmin at `http://localhost/phpmyadmin`
-4. Import `bytestore/database/bytestore.sql`
-5. Open the application at `http://localhost/bytestore/`
+## Installation Guide
 
-## Default Accounts
-
-### Staff
-- `Superadmin1@bytestore.com` / `Superadmin1@bytestore.com`
-- `Employee1@bytestore.com` / `Employee1@bytestore.com`
-- `Pratima1@bytestore.com` / `Pratima1@bytestore.com`
-- `Sunita1@bytestore.com` / `Sunita1@bytestore.com`
-- `Arjun1@bytestore.com` / `Arjun1@bytestore.com`
-
-### Customers
-- `Akraj2024@bytestore.com` / `Akraj2024@bytestore.com`
-- `Arpan1@bytestore.com` / `Arpan1@bytestore.com`
-- `Pramisha1@bytestore.com` / `Pramisha1@bytestore.com`
-- `Sujit1@bytestore.com` / `Sujit1@bytestore.com`
-- `Sajal1@bytestore.com` / `Sajal1@bytestore.com`
-- `Rohan1@bytestore.com` / `Rohan1@bytestore.com`
-- `Customer1@bytestore.com` / `Customer1@bytestore.com`
-
-> For all seeded accounts, the password is the same as the email address.
-
-## Sample Data Included
-
-- 7 seeded customers
-- 5 seeded staff accounts (including a super admin)
-- 24 seeded products
-- 6 sample orders
+1. Install [XAMPP](https://www.apachefriends.org/) (Apache + MySQL + PHP).
+2. Copy this project folder to `C:\xampp\htdocs\bytestore` (or your web root).
+3. Import the database (single file):
+   ```bash
+   mysql -u root < database/bytestore_complete.sql
+   ```
+   On Windows PowerShell:
+   ```powershell
+   Get-Content database\bytestore_complete.sql | mysql -u root
+   ```
+4. Configure database connection in `config/config.php` if needed (default: `localhost`, user `root`, database `bytestore`).
+5. Start **Apache** and **MySQL** from the XAMPP Control Panel.
+6. Open `http://localhost/bytestore/setup_check.php` to verify installation.
+7. Visit `http://localhost/bytestore`
 
 ## Project Structure
 
-```
-bytestore/
-├── admin/                # Legacy admin support files
-│   └── logout.php
-├── assets/               # CSS and static assets
-│   └── css/
-│       └── style.css
-├── config/
-│   └── config.php
-├── customer/             # Customer-facing pages
-│   ├── add_to_cart.php
-│   ├── cart.php
-│   ├── checkout.php
-│   ├── login.php
-│   ├── logout.php
-│   ├── product.php
-│   ├── register.php
-│   └── shop.php
-├── database/
-│   └── bytestore.sql
-├── employee/             # Staff pages and management tools
-│   ├── add_products.php
-│   ├── dashboard.php
-│   ├── delete_products.php
-│   ├── edit_products.php
-│   ├── login.php
-│   ├── logout.php
-│   ├── manage_customers.php
-│   ├── manage_employees.php
-│   ├── order_details.php
-│   └── view_orders.php
-├── includes/             # Shared includes
-│   ├── auth.php
-│   ├── footer.php
-│   ├── header.php
-│   ├── logo.php
-│   ├── product_form.php
-│   └── product_handler.php
-├── index.php
-├── README.md
-├── PROJECT_SUMMARY.md
-└── SETUP_GUIDE.md
-```
+| Path | Description |
+|------|-------------|
+| `index.php` | Homepage, hero, categories, featured products |
+| `customer/` | Shop, product detail, cart, checkout, account |
+| `employee/` | Admin dashboard, products, orders, discounts, support |
+| `includes/` | Header, footer, helpers, product card, modals |
+| `api/` | Wishlist, compare, live search JSON endpoints |
+| `assets/css/` | Design system and QA styles |
+| `assets/js/` | Theme, search, chatbot, charts, modals |
+| `pages/` | About, contact, FAQ, policies |
+| `database/` | `bytestore_complete.sql` (full install) |
+| `config/` | Database configuration |
 
-## Security Notes
+## Demo Accounts
 
-- Passwords are hashed using PHP `password_hash()` and verified with `password_verify()`
-- Input values are escaped with `mysqli_real_escape_string()` to reduce SQL injection risk
-- The app is designed for academic use and should be hardened before production
+After importing `database/bytestore_complete.sql`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | `Akraj2024@bytestore.com` | `Password@123` |
+| Customer (alt) | `customer1@bytestore.com` | `Password@123` |
+| Staff / Admin | `Superadmin1@bytestore.com` | `Password@123` |
+
+## Screenshots
+
+_Add homepage, shop, product page, cart, checkout, employee dashboard, and support ticket screenshots here._
 
 ## Future Improvements
 
-- Add image upload support
-- Add payment gateway integration
-- Improve responsive layout
-- Add customer profile settings
-- Add order status management and notifications
-- Add filters and category navigation
+- Payment gateway expansion (Khalti, Fonepay)
+- Email notifications for orders and support
+- Advanced inventory and warehouse modules
+- Product import/export (CSV)
+- PWA and mobile app API
 
-## Author
+## License
 
-Abhinav Sapkota (002)
-4th Semester
-Advanced College of Engineering and Management
-
-## Supervisor
-
-Govinda Gautam
-
+Academic / educational project — see your institution's guidelines for use and distribution.

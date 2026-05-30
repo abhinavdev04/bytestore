@@ -1,810 +1,300 @@
 <?php
-// -------------------------------------------------------------
-// Public homepage
-// - Shows featured products
-// - Navigation changes if a customer or staff is logged in
-// - Added "Top Ordered Products" fade banner
-// - Added Categories Horizontal Scroll Section
-// -------------------------------------------------------------
-
 session_start();
 require 'config/config.php';
+require 'includes/functions.php';
+
+$page_title = 'Premium Tech Store Nepal';
+
+// Hero products (featured)
+$hero_sql = "SELECT * FROM product WHERE is_featured = 1 ORDER BY rating_avg DESC LIMIT 5";
+$hero_result = mysqli_query($conn, $hero_sql);
+$hero_products = [];
+if ($hero_result) {
+    while ($row = mysqli_fetch_assoc($hero_result)) $hero_products[] = $row;
+}
+if (empty($hero_products)) {
+    $fallback = mysqli_query($conn, "SELECT * FROM product ORDER BY product_price DESC LIMIT 5");
+    if ($fallback) while ($row = mysqli_fetch_assoc($fallback)) $hero_products[] = $row;
+}
+
+// Best sellers
+$bestsellers = mysqli_query($conn, "SELECT p.*, COALESCE(SUM(oi.quantity),0) as total_sold 
+    FROM product p LEFT JOIN order_items oi ON p.product_id = oi.product_id 
+    GROUP BY p.product_id ORDER BY total_sold DESC, p.rating_avg DESC LIMIT 8");
+
+// Trending
+$trending = mysqli_query($conn, "SELECT * FROM product WHERE is_trending = 1 ORDER BY created_at DESC LIMIT 8");
+if (!$trending || mysqli_num_rows($trending) === 0) {
+    $trending = mysqli_query($conn, "SELECT * FROM product ORDER BY RAND() LIMIT 8");
+}
+
+// New arrivals
+$new_arrivals = mysqli_query($conn, "SELECT * FROM product ORDER BY created_at DESC LIMIT 8");
+
+// Featured
+$featured = mysqli_query($conn, "SELECT * FROM product WHERE is_featured = 1 ORDER BY rating_avg DESC LIMIT 8");
+
+// Categories
+$categories = getCategories($conn);
+
+// Brands
+$brands = mysqli_query($conn, "SELECT DISTINCT brand FROM product WHERE brand IS NOT NULL AND brand != '' ORDER BY brand LIMIT 12");
+
+// GIF showcase items
+$gif_items = getGifShowcaseItems($conn);
+
+include 'includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ByteStore - Tech E-Commerce</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        /* Categories Section Styles */
-        .categories-section {
-            margin: 40px 0;
-            background: #f8f9fa;
-            padding: 30px 20px;
-            border-radius: 8px;
-        }
 
-        .categories-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .categories-header h2 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: #333;
-        }
-
-        .categories-nav {
-            display: flex;
-            gap: 10px;
-        }
-
-        .categories-nav button {
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .categories-nav button:hover {
-            background: #0056b3;
-            transform: scale(1.1);
-        }
-
-        .categories-nav button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: scale(1);
-        }
-
-        .categories-scroll-container {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .categories-scroll {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding: 10px 0;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-
-        .categories-scroll::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        .category-card {
-            min-width: 180px;
-            background: white;
-            border-radius: 12px;
-            padding: 25px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .category-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .category-card h3 {
-            margin: 0;
-            font-size: 1rem;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .category-card p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        /* Gradient overlays for scroll indication */
-        .categories-scroll-container::before,
-        .categories-scroll-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .categories-scroll-container::before {
-            left: 0;
-            background: linear-gradient(to right, #f8f9fa, transparent);
-        }
-
-        .categories-scroll-container::after {
-            right: 0;
-            background: linear-gradient(to left, #f8f9fa, transparent);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .category-card {
-                min-width: 150px;
-            }
-
-            .categories-header h2 {
-                font-size: 1.4rem;
-            }
-        }
-
-        /* Category Products Horizontal Scroll */
-        .category-products-section {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .category-products-scroll-container {
-            position: relative;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        .category-products-scroll {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding: 10px 0;
-            scrollbar-width: thin;
-            scrollbar-color: #007bff #f1f1f1;
-        }
-
-        .category-products-scroll::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .category-products-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .category-products-scroll::-webkit-scrollbar-thumb {
-            background: #007bff;
-            border-radius: 10px;
-        }
-
-        .category-products-scroll::-webkit-scrollbar-thumb:hover {
-            background: #0056b3;
-        }
-
-        .product-card-horizontal {
-            min-width: 280px;
-            max-width: 280px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card-horizontal:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .product-card-horizontal img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .product-card-horizontal .product-card-body {
-            padding: 15px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card-horizontal h3 {
-            font-size: 1rem;
-            margin: 0 0 10px 0;
-            color: #333;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            min-height: 2.5em;
-        }
-
-        .product-card-horizontal .price {
-            font-size: 1.2rem;
-            color: #007bff;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-
-        .product-card-horizontal .stock {
-            font-size: 0.9rem;
-            color: #666;
-            margin: 5px 0 15px 0;
-        }
-
-        .product-card-horizontal .btn {
-            margin-top: auto;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <nav>
-        <?php include 'includes/logo.php'; ?>
-        <!-- Logo that refreshes the homepage -->
-        
-
-            <script>
-                (function(){
-                const logo = document.currentScript.parentElement;
-
-                window.addEventListener("scroll", function () {
-                    if (window.scrollY > 50) {
-                    logo.style.fontSize = "20px";
-                    logo.style.letterSpacing = "0.5px";
-                    } else {
-                    logo.style.fontSize = "28px";
-                    logo.style.letterSpacing = "1px";
-                    }
-                });
-                })();
-            </script>
-        </div>
-        <ul>
-            <!-- Home is always active on this page -->
-            <li><a href="index.php" class="active">Home</a></li>
-
-            <?php if (isset($_SESSION['customer_id'])): ?>
-                <!-- Links for logged-in customer -->
-                <li><a href="customer/shop.php">Shop</a></li>
-                <li><a href="customer/cart.php">Cart</a></li>
-                <li><a href="customer/logout.php">Logout (<?php echo $_SESSION['customer_name']; ?>)</a></li>
-
-            <?php elseif (isset($_SESSION['employee_id'])): ?>
-                <!-- Links for logged-in staff -->
-                <li><a href="employee/dashboard.php">Staff Dashboard</a></li>
-               <li><a href="employee/logout.php">Logout</a></li>
-
+<!-- Hero Section -->
+<section class="hero" aria-label="Featured products">
+    <?php foreach ($hero_products as $i => $hp):
+        $link = isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $hp['product_id'] : 'customer/login.php';
+        $hero_pricing = getProductPricing($hp);
+    ?>
+    <div class="hero__slide <?php echo $i === 0 ? 'active' : ''; ?>">
+        <div class="hero__content">
+            <?php if (!empty($hp['brand'])): ?>
+                <span class="hero__badge"><?php echo e($hp['brand']); ?></span>
             <?php else: ?>
-                <!-- Links for visitors (not logged in) -->
-                <li><a href="customer/login.php">Customer Login</a></li>
-                <li><a href="customer/register.php">Register</a></li>
-                <li><a href="employee/login.php">Staff Login</a></li>
+                <span class="hero__badge">New Arrival</span>
             <?php endif; ?>
-        </ul>
-    </nav>
-</header>
-
-
-<!-- Main page content container -->
-<div class="container">
-    <div class="card text-center">
-        <h1>Welcome to ByteStore</h1>
-        <p style="font-size: 1.2rem; margin: 20px 0;">Your One-Stop Shop for Tech Products</p>
-
-        <?php
-        /*
-         * Fetch Top Ordered Products for Banner
-         */
-        $top_sql = "
-            SELECT p.product_id, p.product_name, p.product_image_path, p.product_price,
-                   SUM(oi.quantity) as total_sold
-            FROM order_items oi
-            JOIN product p ON oi.product_id = p.product_id
-            GROUP BY p.product_id
-            ORDER BY total_sold DESC
-            LIMIT 6
-        ";
-        $top_result = mysqli_query($conn, $top_sql);
-
-        $top_products = [];
-        if ($top_result && mysqli_num_rows($top_result) > 0) {
-            while ($row = mysqli_fetch_assoc($top_result)) {
-                $top_products[] = $row;
-            }
-        }
-
-        if (count($top_products) > 0):
-        ?>
-
-        <?php
-        $gif_sql = "SELECT product_id, product_name, product_gif_path, product_image_path FROM product WHERE product_gif_path IS NOT NULL AND product_gif_path != '' LIMIT 10";
-        $gif_result = mysqli_query($conn, $gif_sql);
-        $gif_products = [];
-        if ($gif_result && mysqli_num_rows($gif_result) > 0) {
-            while ($r = mysqli_fetch_assoc($gif_result)) {
-                $gif_products[] = $r;
-            }
-        }
-        
-        if (count($gif_products) > 0):
-        ?>
-            <h2>Featured GIFs</h2>
-            <div class="gif-scroller" id="gifScroller">
-                <div class="gif-track">
-                    <?php foreach ($gif_products as $gp):
-                        $gplink = isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $gp['product_id'] : 'customer/login.php';
-                    ?>
-                        <div class="gif-item">
-                            <a href="<?php echo $gplink; ?>">
-                                <img src="<?php echo $gp['product_gif_path']; ?>" alt="<?php echo htmlspecialchars($gp['product_name']); ?>" onerror="this.src='assets/images/placeholder.jpg'">
-                            </a>
-                            <div class="gif-caption"><h3><?php echo htmlspecialchars($gp['product_name']); ?></h3></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <h2>Top Ordered Products</h2>
-
-        <div class="fade-banner" id="fadeBanner">
-            <?php foreach ($top_products as $i => $top):
-                $link = isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $top['product_id'] : 'customer/login.php';
-            ?>
-                <div class="fade-slide <?php echo $i === 0 ? 'active' : ''; ?>">
-                    <!-- LEFT IMAGE -->
-                    <div class="fade-image">
-                        <a href="<?php echo $link; ?>">
-                            <img src="<?php echo $top['product_image_path']; ?>" onerror="this.src='assets/images/placeholder.jpg'">
-                        </a>
-                    </div>
-
-                    <!-- RIGHT INFO -->
-                    <div class="fade-info">
-                        <h2><a href="<?php echo $link; ?>" style="color:inherit;text-decoration:none"><?php echo $top['product_name']; ?></a></h2>
-                        <p>Sold: <?php echo $top['total_sold']; ?></p>
-                        <p>Price: Rs. <?php echo number_format($top['product_price'], 2); ?></p>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-
-            <!-- Navigation Arrows -->
-            <button class="fade-prev" onclick="prevSlide()">❮</button>
-            <button class="fade-next" onclick="nextSlide()">❯</button>
-        </div>
-
-        <?php endif; ?>
-
-
-        <?php
-        /*
-         * Fetch Categories with Product Count
-         * Sort by product count descending (most products first)
-         */
-        $cat_sql = "
-            SELECT c.category_id, c.category_name, 
-                   COUNT(p.product_id) as product_count
-            FROM category c
-            LEFT JOIN product p ON c.category_id = p.category_id
-            GROUP BY c.category_id, c.category_name
-            HAVING product_count > 0
-            ORDER BY product_count DESC, c.category_name ASC
-        ";
-        $cat_result = mysqli_query($conn, $cat_sql);
-        
-        if (!$cat_result) {
-            // If query fails, set empty result
-            $cat_result = false;
-            echo "<!-- Category query error: " . mysqli_error($conn) . " -->";
-        }
-
-        $category_icons = [
-            'Laptops' => '',
-            'Desktops' => '',
-            'Gaming' => '',
-            'Phones' => '',
-            'Tablets' => '',
-            'Wearables' => '',
-            'Audio' => '',
-            'Monitors' => '',
-            'Storage' => '',
-            'Processors' => '',
-            'Graphics Cards' => '',
-            'Motherboards' => '',
-            'Memory' => '',
-            'Peripherals' => '',
-            'Networking' => '',
-            'Printers' => '',
-            'Software' => '',
-        ];
-        ?>
-
-        <?php
-        // Convert categories result to an array so we can render a limited set and reuse later
-        $categories = [];
-        if ($cat_result && mysqli_num_rows($cat_result) > 0) {
-            while ($r = mysqli_fetch_assoc($cat_result)) {
-                $categories[] = $r;
-            }
-        }
-        ?>
-
-        <?php if (!empty($categories)): ?>
-        <!-- Categories Section -->
-        <div class="categories-section">
-            <div class="categories-header">
-                <h2>Shop by Category</h2>
-                <div class="categories-nav">
-                    <button id="scrollLeft" onclick="scrollCategories('left')">❮</button>
-                    <button id="scrollRight" onclick="scrollCategories('right')">❯</button>
-                </div>
-            </div>
-
-            <div class="categories-scroll-container">
-                <div class="categories-scroll" id="categoriesScroll">
-                    <?php foreach ($categories as $idx => $category):
-                        $cat_name = $category['category_name'];
-                        $icon = '';
-                        foreach ($category_icons as $key => $emoji) {
-                            if (stripos($cat_name, $key) !== false) { $icon = $emoji; break; }
-                        }
-                        $extra_class = $idx >= 5 ? ' extra-cat' : '';
-                        $extra_style = $idx >= 5 ? 'style="display:none;"' : '';
-                    ?>
-                        <a href="customer/shop.php?category=<?php echo $category['category_id']; ?>" class="category-card<?php echo $extra_class; ?>" <?php echo $extra_style; ?> >
-                            <div class="category-icon"><?php echo $icon; ?></div>
-                            <h3><?php echo $cat_name; ?></h3>
-                            <p><?php echo $category['product_count']; ?> products</p>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php if (count($categories) > 5): ?>
-                <div style="text-align:center;margin-top:12px;">
-                    <button id="showMoreCatsBtn" class="btn btn-secondary">Show more categories</button>
-                </div>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-
-
-        <?php
-        /* Recommended products (random selection) */
-        $rec_sql = "SELECT * FROM product ORDER BY RAND() LIMIT 8";
-        $rec_result = mysqli_query($conn, $rec_sql);
-        ?>
-
-        <?php if ($rec_result && mysqli_num_rows($rec_result) > 0): ?>
-            <h2 style="margin-top: 30px;">Recommended For You</h2>
-            <div class="product-grid">
-                <?php while ($rprod = mysqli_fetch_assoc($rec_result)): ?>
-                    <div class="product-card">
-                        <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $rprod['product_id'] : 'customer/login.php'; ?>">
-                            <img src="<?php echo $rprod['product_image_path']; ?>" onerror="this.src='assets/images/placeholder.jpg'">
-                        </a>
-                        <div class="product-card-body">
-                            <h3 style="margin:0 0 10px;"><a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $rprod['product_id'] : 'customer/login.php'; ?>" style="text-decoration:none;color:inherit"><?php echo htmlspecialchars($rprod['product_name']); ?></a></h3>
-                            <p class="price">Rs. <?php echo number_format($rprod['product_price'], 2); ?></p>
-                            <p class="stock">Stock: <?php echo (int)$rprod['product_stock']; ?></p>
-                            <?php if (isset($_SESSION['customer_id'])): ?>
-                                <a href="customer/product.php?id=<?php echo $rprod['product_id']; ?>" class="btn btn-primary">View Details</a>
-                            <?php else: ?>
-                                <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            </div>
-        <?php endif; ?>
-
-        <?php
-        /*
-         * Fetch latest products for Latest Arrivals Section
-         */
-        $sql = "SELECT * FROM product ORDER BY created_at DESC LIMIT 9";
-        $result = mysqli_query($conn, $sql);
-        ?>
-
-        <h2 style="margin-top: 30px;background:rgb(38 53 98);border: 1px solid #ddd;color:white">Latest Arrivals</h2><br><br>
-        <div class="product-grid">
-            <?php while ($product = mysqli_fetch_assoc($result)): ?>
-                <div class="product-card">
-                    <a href="<?php echo isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . $product['product_id'] : 'customer/login.php'; ?>" class="product-card-link">
-                        <img src="<?php echo $product['product_image_path']; ?>"
-                             alt="<?php echo $product['product_name']; ?>"
-                             onerror="this.src='assets/images/placeholder.jpg'">
-                    </a>
-
-                    <div class="product-card-body">
-                       <h3 style="margin: 0 0 10px;">
-                            <a href="<?php echo isset($_SESSION['customer_id']) 
-                                ? 'customer/product.php?id=' . $product['product_id'] 
-                                : 'customer/login.php'; ?>"
-                            class="product-card-title-link"
-                            style="
-                                    display: -webkit-box;
-                                    -webkit-box-orient: vertical;
-                                    -webkit-line-clamp: 1;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                    line-height: 1.4em;
-                                    max-height: 2.8em;
-                            ">
-                                <?php echo htmlspecialchars($product['product_name']); ?>
-                            </a>
-                        </h3>
-                        <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
-                        <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
-
-                        <?php if (isset($_SESSION['customer_id'])): ?>
-                            <a href="customer/product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">View Details</a>
-                        <?php else: ?>
-                            <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endwhile; ?>
-        </div>
-
-
-        <?php
-        /*
-         * Fetch Products by Category with Horizontal Scroll
-         * Show latest 12 products for each category
-         */
-        
-        // Iterate categories array collected earlier
-        foreach ($categories as $category):
-            $cat_name = $category['category_name'];
-            $cat_id = $category['category_id'];
-            
-            // Fetch products for this category using category_id
-            $products_sql = "
-                SELECT * FROM product 
-                WHERE category_id = " . intval($cat_id) . "
-                ORDER BY created_at DESC 
-                LIMIT 12
-            ";
-            $products_result = mysqli_query($conn, $products_sql);
-            
-            // Skip if no products found
-            if (!$products_result || mysqli_num_rows($products_result) == 0) {
-                continue;
-            }
-            
-            $unique_id = 'category-' . $cat_id;
-        ?>
-        
-        <!-- Category Products Section -->
-        <div class="category-products-section" style="margin-top: 40px;">
-            <div class="categories-header">
-                <h2>
-                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="category-heading-link" style="text-decoration: none; color: black;">
-                        <?php echo htmlspecialchars($cat_name); ?>
-                    </a>
-                </h2>
-                <div class="categories-nav">
-                    <button onclick="scrollCategoryProducts('<?php echo $unique_id; ?>', 'left')">❮</button>
-                    <button onclick="scrollCategoryProducts('<?php echo $unique_id; ?>', 'right')">❯</button>
-                    <a href="customer/shop.php?category=<?php echo $cat_id; ?>" class="btn btn-primary" style="margin-left:10px;">View All</a>
-                </div>
-            </div>
-
-            <div class="category-products-scroll-container">
-                <div class="category-products-scroll" id="<?php echo $unique_id; ?>">
-                    <?php while ($product = mysqli_fetch_assoc($products_result)): ?>
-                        <div class="product-card-horizontal">
-                            <img src="<?php echo $product['product_image_path']; ?>"
-                                 alt="<?php echo htmlspecialchars($product['product_name']); ?>"
-                                 onerror="this.src='assets/images/placeholder.jpg'">
-
-                            <div class="product-card-body">
-                                <h3><?php echo htmlspecialchars($product['product_name']); ?></h3>
-                                <p class="price">Rs. <?php echo number_format($product['product_price'], 2); ?></p>
-                                <p class="stock">Stock: <?php echo $product['product_stock']; ?></p>
-
-                                <?php if (isset($_SESSION['customer_id'])): ?>
-                                    <a href="customer/product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">View Details</a>
-                                <?php else: ?>
-                                    <a href="customer/login.php" class="btn btn-primary">Login to Shop</a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
+            <h1 class="hero__title"><?php echo e($hp['product_name']); ?></h1>
+            <p class="hero__subtitle">Experience premium technology at unbeatable prices. Official warranty, free delivery in Kathmandu Valley on orders above Rs. 50,000.</p>
+            <div class="hero__actions">
+                <a href="<?php echo e($link); ?>" class="btn btn--primary btn--lg">Shop Now — <?php echo formatPrice($hero_pricing['price']); ?></a>
+                <a href="customer/shop.php" class="btn btn--secondary btn--lg" style="color:white;border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);">Browse All</a>
             </div>
         </div>
-
+        <div class="hero__image">
+            <img src="<?php echo e(productImageUrl($hp['product_image_path'])); ?>" alt="<?php echo e($hp['product_name']); ?>" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" onerror="this.src='assets/images/placeholder.svg'">
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php if (count($hero_products) > 1): ?>
+    <div class="hero__nav">
+        <?php foreach ($hero_products as $i => $hp): ?>
+            <button class="hero__dot <?php echo $i === 0 ? 'active' : ''; ?>" aria-label="Slide <?php echo $i + 1; ?>"></button>
         <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+</section>
 
-        <div style="margin-top: 40px;">
-            <?php if (!isset($_SESSION['customer_id']) && !isset($_SESSION['employee_id'])): ?>
-                <a href="customer/register.php" class="btn btn-primary">Get Started - Register Now</a>
-            <?php endif; ?>
-        </div>
+<?php if (!empty($gif_items)): ?>
+<section class="gif-showcase" id="gifShowcase" aria-label="Product showcase">
+    <?php foreach ($gif_items as $i => $gif):
+        $gif_link = !empty($gif['product_id'])
+            ? (isset($_SESSION['customer_id']) ? 'customer/product.php?id=' . (int)$gif['product_id'] : 'customer/login.php')
+            : 'customer/shop.php';
+    ?>
+    <a href="<?php echo e($gif_link); ?>" class="gif-showcase__slide <?php echo $i === 0 ? 'active' : ''; ?>" aria-label="View <?php echo e($gif['name']); ?>">
+        <img src="<?php echo e(assetUrl($gif['path'])); ?>" alt="<?php echo e($gif['name']); ?>" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>">
+        <div class="gif-showcase__caption"><strong><?php echo e($gif['name']); ?></strong> <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <?php endforeach; ?>
+    <?php if (count($gif_items) > 1): ?>
+    <button type="button" class="gif-showcase__nav gif-showcase__nav--prev" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+    <button type="button" class="gif-showcase__nav gif-showcase__nav--next" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+    <div class="gif-showcase__dots">
+        <?php foreach ($gif_items as $i => $gif): ?>
+            <button type="button" class="gif-showcase__dot <?php echo $i === 0 ? 'active' : ''; ?>" aria-label="Slide <?php echo $i + 1; ?>"></button>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+</section>
+<script>
+(function(){
+    const showcase = document.getElementById('gifShowcase');
+    if (!showcase) return;
+    const slides = showcase.querySelectorAll('.gif-showcase__slide');
+    const dots = showcase.querySelectorAll('.gif-showcase__dot');
+    if (slides.length <= 1) return;
+    let idx = 0, timer;
+    function go(n){
+        slides[idx].classList.remove('active');
+        if(dots[idx]) dots[idx].classList.remove('active');
+        idx=(n+slides.length)%slides.length;
+        slides[idx].classList.add('active');
+        if(dots[idx]) dots[idx].classList.add('active');
+    }
+    showcase.querySelectorAll('.gif-showcase__nav, .gif-showcase__dot').forEach(el => {
+        el.addEventListener('click', e => e.stopPropagation());
+    });
+    function next(){ go(idx+1); }
+    function prev(){ go(idx-1); }
+    function reset(){ clearInterval(timer); timer=setInterval(next,5000); }
+    showcase.querySelector('.gif-showcase__nav--next')?.addEventListener('click', ()=>{ next(); reset(); });
+    showcase.querySelector('.gif-showcase__nav--prev')?.addEventListener('click', ()=>{ prev(); reset(); });
+    dots.forEach((d,i)=> d.addEventListener('click', ()=>{ go(i); reset(); }));
+    reset();
+})();
+</script>
+<?php endif; ?>
+
+<!-- Trust Badges -->
+<div class="trust-badges">
+    <div class="trust-badge">
+        <div class="trust-badge__icon"><i class="fa-solid fa-truck-fast"></i></div>
+        <div><div class="trust-badge__title">Fast Delivery</div><div class="trust-badge__desc">1-2 days in Kathmandu Valley</div></div>
+    </div>
+    <div class="trust-badge">
+        <div class="trust-badge__icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div><div class="trust-badge__title">Official Warranty</div><div class="trust-badge__desc">Genuine products with warranty</div></div>
+    </div>
+    <div class="trust-badge">
+        <div class="trust-badge__icon"><i class="fa-solid fa-credit-card"></i></div>
+        <div><div class="trust-badge__title">Secure Payment</div><div class="trust-badge__desc">eSewa & Cash on Delivery</div></div>
+    </div>
+    <div class="trust-badge">
+        <div class="trust-badge__icon"><i class="fa-solid fa-rotate-left"></i></div>
+        <div><div class="trust-badge__title">Easy Returns</div><div class="trust-badge__desc">7-day return policy</div></div>
     </div>
 </div>
 
+<!-- Categories -->
+<?php if (!empty($categories)): ?>
+<section class="section">
+    <div class="section__header">
+        <div><h2 class="section__title">Shop by Category</h2><p class="section__subtitle">Find exactly what you need</p></div>
+        <a href="customer/shop.php" class="section__link">View all →</a>
+    </div>
+    <div class="categories-scroll-wrap">
+        <div class="categories-scroll-fade categories-scroll-fade--left" aria-hidden="true"></div>
+        <div class="categories-scroll-fade categories-scroll-fade--right" aria-hidden="true"></div>
+        <div class="categories-scroll" id="categoriesScroll">
+            <?php foreach (array_slice($categories, 0, 12) as $cat): ?>
+                <a href="customer/shop.php?category=<?php echo (int)$cat['category_id']; ?>" class="category-card">
+                    <div class="category-card__icon"><?php echo renderCategoryIcon($cat['category_name']); ?></div>
+                    <span class="category-card__name"><?php echo e($cat['category_name']); ?></span>
+                    <span class="category-card__count"><?php echo (int)$cat['product_count']; ?> items</span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Featured Products -->
+<?php if ($featured && mysqli_num_rows($featured) > 0): ?>
+<section class="section">
+    <div class="section__header">
+        <div><h2 class="section__title">Featured Products</h2><p class="section__subtitle">Hand-picked premium selections</p></div>
+    </div>
+    <div class="product-grid">
+        <?php while ($product = mysqli_fetch_assoc($featured)): include 'includes/product_card.php'; endwhile; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Promo Banners -->
+<div class="promo-banner">
+    <div class="promo-card promo-card--blue">
+        <h3 class="promo-card__title">Gaming Season Sale</h3>
+        <p class="promo-card__desc">Up to 15% off on gaming laptops and accessories</p>
+        <a href="customer/shop.php?category=3" class="btn btn--promo" style="width:fit-content;">Shop Gaming →</a>
+    </div>
+    <div class="promo-card promo-card--purple">
+        <h3 class="promo-card__title">Apple Collection</h3>
+        <p class="promo-card__desc">MacBooks, iPhones, iPads with official warranty</p>
+        <a href="customer/shop.php?search=Apple" class="btn btn--promo" style="width:fit-content;">Explore Apple →</a>
+    </div>
+</div>
+
+<!-- Best Sellers -->
+<?php if ($bestsellers && mysqli_num_rows($bestsellers) > 0): ?>
+<section class="section scroll-row">
+    <div class="section__header">
+        <div><h2 class="section__title">Best Sellers</h2><p class="section__subtitle">Most popular with our customers</p></div>
+        <a href="customer/shop.php?sort=bestseller" class="section__link">View all →</a>
+    </div>
+    <button class="scroll-row__nav scroll-row__nav--prev" onclick="scrollRow('bestsellers-row','left')" aria-label="Scroll left"><i class="fa-solid fa-chevron-left"></i></button>
+    <div class="scroll-row__track" id="bestsellers-row">
+        <?php while ($product = mysqli_fetch_assoc($bestsellers)): include 'includes/product_card.php'; endwhile; ?>
+    </div>
+    <button class="scroll-row__nav scroll-row__nav--next" onclick="scrollRow('bestsellers-row','right')" aria-label="Scroll right"><i class="fa-solid fa-chevron-right"></i></button>
+</section>
+<?php endif; ?>
+
+<!-- Trending -->
+<?php if ($trending && mysqli_num_rows($trending) > 0): ?>
+<section class="section">
+    <div class="section__header">
+        <div><h2 class="section__title">Trending Now</h2><p class="section__subtitle">What's hot in tech right now</p></div>
+    </div>
+    <div class="product-grid">
+        <?php while ($product = mysqli_fetch_assoc($trending)): include 'includes/product_card.php'; endwhile; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Brand Showcase -->
+<?php if ($brands && mysqli_num_rows($brands) > 0): ?>
+<section class="section">
+    <div class="section__header"><h2 class="section__title">Trusted Brands</h2></div>
+    <div class="brands-row">
+        <?php while ($b = mysqli_fetch_assoc($brands)): ?>
+            <span class="brand-item"><?php echo e($b['brand']); ?></span>
+        <?php endwhile; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- New Arrivals -->
+<?php if ($new_arrivals && mysqli_num_rows($new_arrivals) > 0): ?>
+<section class="section scroll-row">
+    <div class="section__header">
+        <div><h2 class="section__title">New Arrivals</h2><p class="section__subtitle">Latest additions to our catalog</p></div>
+        <a href="customer/shop.php?sort=newest" class="section__link">View all →</a>
+    </div>
+    <button class="scroll-row__nav scroll-row__nav--prev" onclick="scrollRow('newarrivals-row','left')" aria-label="Scroll left"><i class="fa-solid fa-chevron-left"></i></button>
+    <div class="scroll-row__track" id="newarrivals-row">
+        <?php while ($product = mysqli_fetch_assoc($new_arrivals)): include 'includes/product_card.php'; endwhile; ?>
+    </div>
+    <button class="scroll-row__nav scroll-row__nav--next" onclick="scrollRow('newarrivals-row','right')" aria-label="Scroll right"><i class="fa-solid fa-chevron-right"></i></button>
+</section>
+<?php endif; ?>
+
+<!-- Testimonials -->
+<section class="section">
+    <div class="section__header"><h2 class="section__title">What Our Customers Say</h2></div>
+    <div class="testimonials-grid">
+        <div class="testimonial-card">
+            <div class="testimonial-card__text">"Excellent service and genuine products. My MacBook Air arrived next day in Kathmandu. ByteStore is my go-to for all tech purchases."</div>
+            <?php echo renderStars(5); ?>
+            <div class="testimonial-card__author">Akraj Customer</div>
+            <div class="testimonial-card__role">Verified Buyer — MacBook Air M2</div>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-card__text">"Competitive prices and knowledgeable staff. The gaming laptop I bought performs exactly as advertised. Highly recommend for gamers in Nepal."</div>
+            <?php echo renderStars(5); ?>
+            <div class="testimonial-card__author">Arpan Shopper</div>
+            <div class="testimonial-card__role">Verified Buyer — ROG Strix</div>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-card__text">"Smooth checkout with eSewa payment. Order tracking kept me updated throughout. Will definitely shop here again for my next phone upgrade."</div>
+            <?php echo renderStars(4); ?>
+            <div class="testimonial-card__author">Pramisha Shopper</div>
+            <div class="testimonial-card__role">Verified Buyer — Samsung Galaxy S24</div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter">
+    <h2 class="newsletter__title">Stay Updated</h2>
+    <p class="newsletter__desc">Get exclusive deals, new arrivals, and tech news delivered to your inbox.</p>
+    <form id="newsletter-form" class="newsletter__form">
+        <input type="email" name="email" class="newsletter__input" placeholder="Enter your email" required aria-label="Email for newsletter">
+        <button type="submit" class="newsletter__btn">Subscribe</button>
+    </form>
+</section>
+
+<?php if (!isset($_SESSION['customer_id'])): ?>
+<div class="card card--glass text-center" style="padding:3rem;">
+    <h2 style="margin-bottom:0.5rem;">Ready to upgrade your tech?</h2>
+    <p class="text-muted" style="margin-bottom:1.5rem;">Join thousands of satisfied customers across Nepal</p>
+    <a href="customer/register.php" class="btn btn--primary btn--lg">Create Free Account</a>
+</div>
+<?php endif; ?>
+
 <?php include 'includes/footer.php'; ?>
-
-
-<!-- Scripts -->
-<script>
-// ==================== Banner Fade Script ====================
-let index = 0;
-const slides = document.querySelectorAll(".fade-slide");
-const banner = document.querySelector(".fade-banner");
-
-if (banner) {
-    function showSlide(i) {
-        slides.forEach(slide => slide.classList.remove("active"));
-        slides[i].classList.add("active");
-    }
-
-    function nextSlide() {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-    }
-
-    function prevSlide() {
-        index = (index - 1 + slides.length) % slides.length;
-        showSlide(index);
-    }
-
-    // Auto Fade
-    let slideInterval = setInterval(nextSlide, 2000);
-
-    // Pause on hover
-    banner.addEventListener("mouseenter", () => {
-        clearInterval(slideInterval);
-    });
-
-    banner.addEventListener("mouseleave", () => {
-        slideInterval = setInterval(nextSlide, 2000);
-    });
-}
-
-
-// ==================== Categories Scroll Script ====================
-const categoriesScroll = document.getElementById('categoriesScroll');
-const scrollLeftBtn = document.getElementById('scrollLeft');
-const scrollRightBtn = document.getElementById('scrollRight');
-
-if (categoriesScroll) {
-    function scrollCategories(direction) {
-        const scrollAmount = 400;
-        if (direction === 'left') {
-            categoriesScroll.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        } else {
-            categoriesScroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-    }
-
-    // Update button states based on scroll position
-    function updateScrollButtons() {
-        const isAtStart = categoriesScroll.scrollLeft <= 0;
-        const isAtEnd = categoriesScroll.scrollLeft + categoriesScroll.clientWidth >= categoriesScroll.scrollWidth - 1;
-        
-        scrollLeftBtn.disabled = isAtStart;
-        scrollRightBtn.disabled = isAtEnd;
-    }
-
-    // Check initial state
-    updateScrollButtons();
-
-    // Update on scroll
-    categoriesScroll.addEventListener('scroll', updateScrollButtons);
-}
-
-
-// ==================== Category Products Scroll Script ====================
-function scrollCategoryProducts(categoryId, direction) {
-    const container = document.getElementById(categoryId);
-    if (!container) return;
-    
-    const scrollAmount = 320; // Width of card + gap
-    if (direction === 'left') {
-        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    } else {
-        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-}
-
-// Show more categories toggle
-document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.getElementById('showMoreCatsBtn');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-        const extras = document.querySelectorAll('.extra-cat');
-        const isHidden = extras.length > 0 && extras[0].style.display === 'none';
-        extras.forEach(e => e.style.display = isHidden ? 'flex' : 'none');
-        btn.textContent = isHidden ? 'Show fewer categories' : 'Show more categories';
-    });
-});
-    
-    (function(){
-        const scroller = document.getElementById('gifScroller');
-        if (!scroller) return;
-        const track = scroller.querySelector('.gif-track');
-        const items = scroller.querySelectorAll('.gif-item');
-        if (!items || items.length === 0) return;
-
-        let indexG = 0;
-        let timer = null;
-
-        function showG(i) {
-            const offset = i * scroller.clientWidth;
-            track.style.transform = 'translateX(-' + offset + 'px)';
-        }
-
-        // preload gifs
-        items.forEach(it => {
-            const img = it.querySelector('img');
-            if (img && img.src) {
-                const p = new Image(); p.src = img.src;
-            }
-        });
-
-        function startLoop() {
-            if (timer) clearTimeout(timer);
-            const active = items[indexG];
-            const dur = parseInt(active?.getAttribute('data-duration')) || 5000;
-            timer = setTimeout(function() {
-                indexG = (indexG + 1) % items.length;
-                showG(indexG);
-                startLoop();
-            }, dur);
-        }
-
-        scroller.addEventListener('mouseenter', function(){ if (timer) { clearTimeout(timer); timer = null; } });
-        scroller.addEventListener('mouseleave', function(){ if (!timer) startLoop(); });
-
-        window.addEventListener('resize', function(){ showG(indexG); });
-
-        // initialize
-        showG(0);
-        setTimeout(startLoop, 800);
-    })();
-
-</script>
-
-</body>
-</html>

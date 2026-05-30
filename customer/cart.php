@@ -2,6 +2,7 @@
 session_start();
 require '../config/config.php';
 require '../includes/auth.php';
+require '../includes/functions.php';
 
 checkCustomerLogin();
 
@@ -59,10 +60,11 @@ if (isset($_SESSION['cancel_error'])) {
     unset($_SESSION['cancel_error']);
 }
 
-// Get cart items
-$sql = "SELECT c.cart_id, c.quantity, p.product_id, p.product_name, p.product_price, p.product_image_path, p.product_stock
+// Get cart items (with variant pricing)
+$sql = "SELECT c.cart_id, c.quantity, c.variant_id, p.*, pv.variant_name, pv.variant_price, pv.variant_stock
         FROM cart c
         JOIN product p ON c.product_id = p.product_id
+        LEFT JOIN product_variant pv ON c.variant_id = pv.variant_id
         WHERE c.customer_id = $customer_id";
 $result = mysqli_query($conn, $sql);
 
@@ -83,15 +85,12 @@ $shipped_orders_sql = "SELECT o.order_id, o.order_date, o.total_amount, o.order_
 $shipped_orders_result = mysqli_query($conn, $shipped_orders_sql);
 
 $total = 0;
+
+$page_title = 'Shopping Cart';
+include '../includes/header.php';
+echo renderBreadcrumbs([['label' => 'Home', 'url' => '../index.php'], ['label' => 'Cart', 'url' => '']]);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
+<style>
         .status-badge {
             display: inline-block;
             padding: 5px 12px;
@@ -170,10 +169,7 @@ $total = 0;
             border: 1px solid #f5c6cb;
         }
     </style>
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
-    
+
     <!-- Success/Error Messages -->
     <?php if (!empty($cancel_message)): ?>
         <div class="card">
@@ -203,31 +199,40 @@ $total = 0;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($item = mysqli_fetch_assoc($result)): 
-                        $item_total = $item['product_price'] * $item['quantity'];
+                    <?php while ($item = mysqli_fetch_assoc($result)):
+                        $item_pricing = getProductPricing($item);
+                        $price = $item['variant_price'] ? (float)$item['variant_price'] : $item_pricing['price'];
+                        $stock = $item['variant_stock'] !== null ? (int)$item['variant_stock'] : (int)$item['product_stock'];
+                        $item_total = $price * $item['quantity'];
                         $total += $item_total;
                     ?>
                         <tr>
                             <td>
-                                <img src="../<?php echo $item['product_image_path']; ?>" alt="<?php echo $item['product_name']; ?>" 
+                                <img src="<?php echo e(productImageUrl($item['product_image_path'])); ?>" alt="<?php echo e($item['product_name']); ?>" 
                                      style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; vertical-align: middle;" 
-                                     onerror="this.src='../assets/images/placeholder.jpg'">
-                                <?php echo $item['product_name']; ?>
+                                     onerror="this.src='../assets/images/placeholder.svg'">
+                                <?php echo e($item['product_name']); ?>
+                                <?php if ($item['variant_name']): ?><br><small class="text-muted"><?php echo e($item['variant_name']); ?></small><?php endif; ?>
                             </td>
-                            <td>Rs. <?php echo number_format($item['product_price'], 2); ?></td>
                             <td>
-                                <form method="POST" style="display: inline;">
+                                <?php if (!$item['variant_price'] && $item_pricing['discount_percent'] > 0): ?>
+                                    <?php echo renderProductPricingHtml($item_pricing, 'card'); ?>
+                                <?php else: ?>
+                                    <?php echo formatPrice($price); ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <form method="POST" style="display:inline-flex;align-items:center;gap:0.5rem;">
                                     <input type="hidden" name="cart_id" value="<?php echo $item['cart_id']; ?>">
-                                    <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" 
-                                           min="1" max="<?php echo $item['product_stock']; ?>" 
-                                           style="width: 60px; padding: 5px;">
-                                    <button type="submit" name="update_quantity" class="btn btn-warning" style="padding: 5px 10px;">Update</button>
+                                    <?php echo renderQtyStepper('quantity', $item['quantity'], 1, $stock); ?>
+                                    <button type="submit" name="update_quantity" class="btn btn-warning btn--sm"><i class="fa-solid fa-rotate"></i> Update</button>
                                 </form>
                             </td>
                             <td>Rs. <?php echo number_format($item_total, 2); ?></td>
                             <td>
                                 <a href="cart.php?remove=<?php echo $item['cart_id']; ?>" class="btn btn-danger" 
-                                   onclick="return confirm('Remove this item from cart?')">Remove</a>
+                                   data-confirm="Remove this item from your cart?"
+                                   data-confirm-title="Remove Item"><i class="fa-solid fa-trash"></i> Remove</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -329,7 +334,7 @@ $total = 0;
                     <!-- Order Actions -->
                     <div class="order-actions">
                         <?php if (in_array($order['order_status'], ['Pending', 'Processing'])): ?>
-                            <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                            <form method="POST" style="display: inline;" data-confirm-submit="Are you sure you want to cancel this order?" data-confirm-title="Cancel Order">
                                 <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
                                 <button type="submit" name="cancel_order" class="btn btn-danger">
                                     Cancel Order
@@ -426,7 +431,7 @@ $total = 0;
                     <!-- Order Actions for Shipped Orders -->
                     <div class="order-actions">
                         <p style="margin: 0; color: #28a745; font-weight: bold;">
-                            <i>✓ Your order is shipped!</i>
+                            <i class="fa-solid fa-circle-check"></i> Your order is shipped!
                         </p>
                     </div>
                 </div>
@@ -440,5 +445,3 @@ $total = 0;
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>

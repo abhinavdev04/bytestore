@@ -6,17 +6,10 @@ require '../includes/auth.php';
 checkEmployeeLogin();
 
 $result = mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email FROM orders o JOIN customer c ON o.customer_id = c.customer_id ORDER BY o.order_date DESC");
+$page_title = 'View Orders';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Orders - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
     
     <div class="card">
         <h2>All Orders</h2>
@@ -56,6 +49,4 @@ $result = mysqli_query($conn, "SELECT o.*, c.customer_name, c.customer_email FRO
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>
 

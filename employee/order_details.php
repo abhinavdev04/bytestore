@@ -32,17 +32,10 @@ $items_result = mysqli_query($conn, "SELECT oi.*, p.product_name, p.product_imag
 // Define allowed order statuses
 $order_statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
+$page_title = 'Order Details';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
     
     <div class="card">
         <h2>Order Details - #<?php echo $order_id; ?></h2>
@@ -126,5 +119,3 @@ $order_statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>

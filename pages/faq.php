@@ -1,0 +1,13 @@
+<?php
+require '_template.php';
+renderStaticPage('Frequently Asked Questions', '
+<div style="display:flex;flex-direction:column;gap:1rem;">
+    <details class="card" style="padding:1.25rem;cursor:pointer;"><summary style="font-weight:600;cursor:pointer;">How do I place an order?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">Create an account, browse products, add items to your cart, and proceed to checkout. Choose Cash on Delivery or pay securely via eSewa.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">What payment methods do you accept?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">We accept Cash on Delivery (COD) nationwide and eSewa for online payments. Bank transfer is available for orders above Rs. 100,000.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">How long does delivery take?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">Kathmandu Valley: 1-2 business days. Major cities: 2-4 days. Remote areas: 5-7 business days. Free delivery on orders above Rs. 50,000 within Kathmandu.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">What is your return policy?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">7-day return for unopened items in original packaging. 14-day exchange for defective products. See our <a href="returns.php">Return Policy</a> for details.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">Are products covered by warranty?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">Yes, all products include official manufacturer warranty. Duration varies by product category. See our <a href="warranty.php">Warranty page</a>.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">How do I track my order?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">Log in to your account and visit Order History in your dashboard. You can also use our chatbot for quick order status updates.</p></details>
+    <details class="card" style="padding:1.25rem;"><summary style="font-weight:600;cursor:pointer;">Can I compare products?</summary><p style="margin-top:0.75rem;color:var(--color-text-secondary);">Yes! Click the compare icon on any product card to add up to 4 products for side-by-side comparison of specs, prices, and ratings.</p></details>
+</div>
+');

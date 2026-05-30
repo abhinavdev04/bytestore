@@ -2,6 +2,7 @@
 session_start();
 require '../config/config.php';
 require '../includes/auth.php';
+require '../includes/functions.php';
 
 checkCustomerLogin();
 
@@ -10,12 +11,21 @@ $error = '';
 $success = '';
 
 $customer = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM customer WHERE customer_id=$customer_id"));
-$cart_result = mysqli_query($conn, "SELECT c.quantity, p.product_id, p.product_name, p.product_price, p.product_stock FROM cart c JOIN product p ON c.product_id = p.product_id WHERE c.customer_id = $customer_id");
+$cart_result = mysqli_query($conn, "SELECT c.quantity, c.variant_id, p.*, pv.variant_price, pv.variant_stock, pv.variant_name
+    FROM cart c JOIN product p ON c.product_id = p.product_id
+    LEFT JOIN product_variant pv ON c.variant_id = pv.variant_id
+    WHERE c.customer_id = $customer_id");
 
 $total = 0;
 $cart_items = [];
 while ($item = mysqli_fetch_assoc($cart_result)) {
-    $item_total = $item['product_price'] * $item['quantity'];
+    $pricing = getProductPricing($item);
+    $price = $item['variant_price'] ? (float)$item['variant_price'] : $pricing['price'];
+    $item['pricing'] = $pricing;
+    $stock = $item['variant_stock'] !== null ? (int)$item['variant_stock'] : (int)$item['product_stock'];
+    $item['effective_price'] = $price;
+    $item['effective_stock'] = $stock;
+    $item_total = $price * $item['quantity'];
     $total += $item_total;
     $cart_items[] = $item;
 }
@@ -32,7 +42,7 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'cod') {
         $error = "Your cart is empty!";
     } else {
         foreach ($cart_items as $item) {
-            if ($item['quantity'] > $item['product_stock']) {
+            if ($item['quantity'] > $item['effective_stock']) {
                 $error = "Insufficient stock for " . $item['product_name'];
                 break;
             }
@@ -45,8 +55,14 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'cod') {
                 $order_id = mysqli_insert_id($conn);
 
                 foreach ($cart_items as $item) {
-                    mysqli_query($conn, "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($order_id, {$item['product_id']}, {$item['quantity']}, {$item['product_price']})");
-                    mysqli_query($conn, "UPDATE product SET product_stock=" . ($item['product_stock'] - $item['quantity']) . " WHERE product_id={$item['product_id']}");
+                    $price = $item['effective_price'];
+                    $variant_sql = $item['variant_id'] ? (int)$item['variant_id'] : 'NULL';
+                    mysqli_query($conn, "INSERT INTO order_items (order_id, product_id, variant_id, quantity, price) VALUES ($order_id, {$item['product_id']}, $variant_sql, {$item['quantity']}, $price)");
+                    if ($item['variant_id']) {
+                        mysqli_query($conn, "UPDATE product_variant SET variant_stock=" . ($item['effective_stock'] - $item['quantity']) . " WHERE variant_id=" . (int)$item['variant_id']);
+                    } else {
+                        mysqli_query($conn, "UPDATE product SET product_stock=" . ($item['effective_stock'] - $item['quantity']) . " WHERE product_id={$item['product_id']}");
+                    }
                 }
 
                 mysqli_query($conn, "DELETE FROM cart WHERE customer_id=$customer_id");
@@ -70,23 +86,22 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
         $error = "Your cart is empty!";
     } else {
         foreach ($cart_items as $item) {
-            if ($item['quantity'] > $item['product_stock']) {
+            if ($item['quantity'] > $item['effective_stock']) {
                 $error = "Insufficient stock for " . $item['product_name'];
                 break;
             }
         }
 
         if (!$error) {
-            // Save phone number
             mysqli_query($conn, "UPDATE customer SET customer_phone='$customer_phone_escaped' WHERE customer_id=$customer_id");
 
-            // Create the order with payment_status = 'Pending'
             if (mysqli_query($conn, "INSERT INTO orders (customer_id, total_amount, shipping_address, customer_phone, order_status, payment_status) VALUES ($customer_id, $total, '$shipping_address', '$customer_phone_escaped', 'Pending', 'Pending')")) {
                 $order_id = mysqli_insert_id($conn);
 
                 foreach ($cart_items as $item) {
-                    mysqli_query($conn, "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($order_id, {$item['product_id']}, {$item['quantity']}, {$item['product_price']})");
-                    // NOTE: stock is deducted ONLY after payment confirmation in esewa_success.php
+                    $price = $item['effective_price'];
+                    $variant_sql = $item['variant_id'] ? (int)$item['variant_id'] : 'NULL';
+                    mysqli_query($conn, "INSERT INTO order_items (order_id, product_id, variant_id, quantity, price) VALUES ($order_id, {$item['product_id']}, $variant_sql, {$item['quantity']}, $price)");
                 }
 
                 // Store order info in session for esewa_payment.php to use
@@ -103,15 +118,11 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
         }
     }
 }
+$page_title = 'Checkout';
+include '../includes/header.php';
+echo renderBreadcrumbs([['label' => 'Home', 'url' => '../index.php'], ['label' => 'Cart', 'url' => 'cart.php'], ['label' => 'Checkout', 'url' => '']]);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
+<style>
         .payment-options { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
         .payment-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: border-color 0.2s; }
         .payment-option:hover { border-color: #00c6ff; }
@@ -120,11 +131,8 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
         .esewa-badge { background: #60BB46; color: white; font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .esewa-logo-text { color: #60BB46; font-weight: bold; font-size: 16px; }
     </style>
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
 
-    <div class="card">
+    <div class="card checkout-form">
         <h2>Checkout</h2>
 
         <?php if ($error): ?>
@@ -150,13 +158,14 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
                             </thead>
                             <tbody>
                                 <?php foreach ($cart_items as $item):
-                                    $item_total = $item['product_price'] * $item['quantity'];
+                                    $price = $item['effective_price'];
+                                    $item_total = $price * $item['quantity'];
                                 ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($item['product_name']); ?></td>
+                                        <td><?php echo e($item['product_name']); ?><?php if (!empty($item['variant_name'])): ?><br><small class="text-muted"><?php echo e($item['variant_name']); ?></small><?php endif; ?></td>
                                         <td><?php echo $item['quantity']; ?></td>
-                                        <td>Rs. <?php echo number_format($item['product_price'], 2); ?></td>
-                                        <td>Rs. <?php echo number_format($item_total, 2); ?></td>
+                                        <td><?php echo formatPrice($price); ?></td>
+                                        <td><?php echo formatPrice($item_total); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -188,7 +197,7 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
                                 <div class="payment-options">
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="cod" checked>
-                                        <span>💵 Cash on Delivery</span>
+                                        <span><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</span>
                                     </label>
                                     <label class="payment-option esewa-option">
                                         <input type="radio" name="payment_method" value="esewa">
@@ -211,5 +220,3 @@ if (isset($_POST['place_order']) && $_POST['payment_method'] === 'esewa') {
     </div>
 
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>

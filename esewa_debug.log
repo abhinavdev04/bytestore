@@ -556,3 +556,80 @@ POST: Array
 )
 
 RAW_INPUT: (empty)
+=== eSewa Payment Form Payload ===
+Time: 2026-05-30 08:15:57
+Form fields:
+total_amount=100000.00
+transaction_uuid=BYTESTORE-8-1780121757
+product_code=EPAYTEST
+signature=ACo738Vi5nG2psEjTgiQreAiaz4pUbYSdZZeTeaGgOU=
+success_url=http://localhost/bytestore/customer/esewa_success.php
+failure_url=http://localhost/bytestore/customer/esewa_failure.php
+pid=BYTESTORE-8-1780121757
+scd=EPAYTEST
+amt=100000.00
+tAmt=100000.00
+su=http://localhost/bytestore/customer/esewa_success.php
+fu=http://localhost/bytestore/customer/esewa_failure.php
+psc=0
+pdc=0
+=== eSewa Payment Form Payload ===
+Time: 2026-05-30 08:16:22
+Form fields:
+total_amount=18000.00
+transaction_uuid=BYTESTORE-9-1780121782
+product_code=EPAYTEST
+signature=OHqEOB+vE64gjd9gyTOEt8mVO46wy4Ax3JbNPpjf8Qo=
+success_url=http://localhost/bytestore/customer/esewa_success.php
+failure_url=http://localhost/bytestore/customer/esewa_failure.php
+pid=BYTESTORE-9-1780121782
+scd=EPAYTEST
+amt=18000.00
+tAmt=18000.00
+su=http://localhost/bytestore/customer/esewa_success.php
+fu=http://localhost/bytestore/customer/esewa_failure.php
+psc=0
+pdc=0
+=== eSewa Success Debug ===
+Time: 2026-05-30 08:16:38
+Full URL: http://localhost/bytestore/customer/esewa_success.php?data=eyJ0cmFuc2FjdGlvbl9jb2RlIjoiMDAwRkw4SSIsInN0YXR1cyI6IkNPTVBMRVRFIiwidG90YWxfYW1vdW50IjoiMTgwMDAuMCIsInRyYW5zYWN0aW9uX3V1aWQiOiJCWVRFU1RPUkUtOS0xNzgwMTIxNzgyIiwicHJvZHVjdF9jb2RlIjoiRVBBWVRFU1QiLCJzaWduZWRfZmllbGRfbmFtZXMiOiJ0cmFuc2FjdGlvbl9jb2RlLHN0YXR1cyx0b3RhbF9hbW91bnQsdHJhbnNhY3Rpb25fdXVpZCxwcm9kdWN0X2NvZGUsc2lnbmVkX2ZpZWxkX25hbWVzIiwic2lnbmF0dXJlIjoiZ2xVbDZzTlZBZHlxN1NkVG1PL3J4SldLZ1dlRjNtZDFTYTJXN3E4OHVSST0ifQ==
+GET: Array
+(
+    [data] => eyJ0cmFuc2FjdGlvbl9jb2RlIjoiMDAwRkw4SSIsInN0YXR1cyI6IkNPTVBMRVRFIiwidG90YWxfYW1vdW50IjoiMTgwMDAuMCIsInRyYW5zYWN0aW9uX3V1aWQiOiJCWVRFU1RPUkUtOS0xNzgwMTIxNzgyIiwicHJvZHVjdF9jb2RlIjoiRVBBWVRFU1QiLCJzaWduZWRfZmllbGRfbmFtZXMiOiJ0cmFuc2FjdGlvbl9jb2RlLHN0YXR1cyx0b3RhbF9hbW91bnQsdHJhbnNhY3Rpb25fdXVpZCxwcm9kdWN0X2NvZGUsc2lnbmVkX2ZpZWxkX25hbWVzIiwic2lnbmF0dXJlIjoiZ2xVbDZzTlZBZHlxN1NkVG1PL3J4SldLZ1dlRjNtZDFTYTJXN3E4OHVSST0ifQ==
+)
+
+POST: Array
+(
+)
+
+RAW_INPUT: (empty)
+=== eSewa Payment Form Payload ===
+Time: 2026-05-30 08:57:57
+Form fields:
+total_amount=449.00
+transaction_uuid=BYTESTORE-13-1780124277
+product_code=EPAYTEST
+signature=1n8pnSSRxpx/P/877IdHXM/qyfhU4xosx7lOErZt9sU=
+success_url=http://localhost/bytestore/customer/esewa_success.php
+failure_url=http://localhost/bytestore/customer/esewa_failure.php
+pid=BYTESTORE-13-1780124277
+scd=EPAYTEST
+amt=449.00
+tAmt=449.00
+su=http://localhost/bytestore/customer/esewa_success.php
+fu=http://localhost/bytestore/customer/esewa_failure.php
+psc=0
+pdc=0
+=== eSewa Success Debug ===
+Time: 2026-05-30 08:58:18
+Full URL: http://localhost/bytestore/customer/esewa_success.php?data=eyJ0cmFuc2FjdGlvbl9jb2RlIjoiMDAwRkw4ViIsInN0YXR1cyI6IkNPTVBMRVRFIiwidG90YWxfYW1vdW50IjoiNDQ5LjAiLCJ0cmFuc2FjdGlvbl91dWlkIjoiQllURVNUT1JFLTEzLTE3ODAxMjQyNzciLCJwcm9kdWN0X2NvZGUiOiJFUEFZVEVTVCIsInNpZ25lZF9maWVsZF9uYW1lcyI6InRyYW5zYWN0aW9uX2NvZGUsc3RhdHVzLHRvdGFsX2Ftb3VudCx0cmFuc2FjdGlvbl91dWlkLHByb2R1Y3RfY29kZSxzaWduZWRfZmllbGRfbmFtZXMiLCJzaWduYXR1cmUiOiJnbE5qRFBWR3FWVmdFQWttaHA3M01OKzE2SUNHVjRMSGdQaE0zTzQxZmswPSJ9
+GET: Array
+(
+    [data] => eyJ0cmFuc2FjdGlvbl9jb2RlIjoiMDAwRkw4ViIsInN0YXR1cyI6IkNPTVBMRVRFIiwidG90YWxfYW1vdW50IjoiNDQ5LjAiLCJ0cmFuc2FjdGlvbl91dWlkIjoiQllURVNUT1JFLTEzLTE3ODAxMjQyNzciLCJwcm9kdWN0X2NvZGUiOiJFUEFZVEVTVCIsInNpZ25lZF9maWVsZF9uYW1lcyI6InRyYW5zYWN0aW9uX2NvZGUsc3RhdHVzLHRvdGFsX2Ftb3VudCx0cmFuc2FjdGlvbl91dWlkLHByb2R1Y3RfY29kZSxzaWduZWRfZmllbGRfbmFtZXMiLCJzaWduYXR1cmUiOiJnbE5qRFBWR3FWVmdFQWttaHA3M01OKzE2SUNHVjRMSGdQaE0zTzQxZmswPSJ9
+)
+
+POST: Array
+(
+)
+
+RAW_INPUT: (empty)

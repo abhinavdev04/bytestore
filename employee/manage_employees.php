@@ -128,17 +128,10 @@ if (isset($_GET['edit']) && $_SESSION['employee_id'] == 1) {
         $edit_employee = mysqli_fetch_assoc($edit_res);
     }
 }
+$page_title = 'Manage Employees';
+require '../includes/functions.php';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Employees - ByteStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
     
     <div class="card">
         <h2>Manage Employees</h2>
@@ -244,7 +237,8 @@ if (isset($_GET['edit']) && $_SESSION['employee_id'] == 1) {
                                 <a href="manage_employees.php?edit=<?php echo $employee['employee_id']; ?>" class="btn btn-primary">Edit</a>
                                 <a href="manage_employees.php?delete=<?php echo $employee['employee_id']; ?>" 
                                    class="btn btn-danger" 
-                                   onclick="return confirm('Are you sure you want to delete this employee?')">
+                                   data-confirm="Are you sure you want to delete this employee?"
+                                   data-confirm-title="Delete Employee">
                                    Delete
                                 </a>
                             </td>
@@ -256,7 +250,5 @@ if (isset($_GET['edit']) && $_SESSION['employee_id'] == 1) {
     </div>
     
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>
 
 
