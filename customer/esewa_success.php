@@ -280,8 +280,18 @@ unset(
     <title>Payment Successful - ByteStore</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        .success-card { text-align: center; padding: 40px; max-width: 560px; margin: 50px auto; }
+        .success-card {
+            text-align: center;
+            padding: 40px;
+            max-width: 560px;
+            margin: 50px auto;
+        }
         .checkmark { font-size: 64px; margin-bottom: 10px; }
+
+        .success-title  { color: #2e7d32; }
+        .success-note   { color: #555555; font-size: 14px; }
+        .paid-status    { color: #2e7d32; font-weight: bold; }
+
         .order-details {
             background: #f4fdf4;
             border: 1px solid #b2dfb2;
@@ -289,17 +299,41 @@ unset(
             padding: 18px 24px;
             margin: 24px 0;
             text-align: left;
+            color: #1a1a1a;
         }
-        .order-details p { margin: 8px 0; }
+        .order-details p       { margin: 8px 0; color: #1a1a1a; }
+        .order-details strong  { color: #111111; }
+
         .txn-code {
             font-family: monospace;
             font-size: 13px;
-            color: #555;
-            background: #eee;
+            color: #333333;
+            background: #e8e8e8;
             padding: 2px 8px;
             border-radius: 4px;
         }
-        .esewa-green { color: #60BB46; font-weight: bold; }
+        .esewa-green { color: #2d8a1e; font-weight: bold; }
+
+        /* ── Dark mode overrides ── */
+        @media (prefers-color-scheme: dark) {
+            .success-title  { color: #66bb6a; }
+            .paid-status    { color: #66bb6a; }
+            .success-note   { color: #aaaaaa; }
+            .esewa-green    { color: #60BB46; }
+
+            .order-details {
+                background: #1a2e1a;
+                border-color: #2d5a2d;
+                color: #e8e8e8;
+            }
+            .order-details p      { color: #e8e8e8; }
+            .order-details strong { color: #ffffff; }
+
+            .txn-code {
+                color: #cccccc;
+                background: #2a2a2a;
+            }
+        }
     </style>
 </head>
 <body>
@@ -307,20 +341,20 @@ unset(
 
     <div class="card success-card">
         <div class="checkmark">✅</div>
-        <h2 style="color: #2e7d32;">Payment Successful!</h2>
+        <h2 class="success-title">Payment Successful!</h2>
         <p>Your eSewa payment has been verified and your order is confirmed.</p>
 
         <div class="order-details">
-            <p><strong>Order ID:</strong> #<?php echo $order_id; ?></p>
-            <p><strong>Amount Paid:</strong> Rs. <?php echo number_format($order['total_amount'], 2); ?></p>
+            <p><strong>Order ID:</strong> #<?php echo (int)$order_id; ?></p>
+            <p><strong>Amount Paid:</strong> Rs. <?php echo number_format((float)$order['total_amount'], 2); ?></p>
             <p><strong>Payment Method:</strong> <span class="esewa-green">eSewa</span></p>
-            <?php if ($transaction_code): ?>
-            <p><strong>eSewa Txn Code:</strong> <span class="txn-code"><?php echo htmlspecialchars($transaction_code); ?></span></p>
+            <?php if (!empty($transaction_code)): ?>
+            <p><strong>eSewa Txn Code:</strong> <span class="txn-code"><?php echo htmlspecialchars($transaction_code, ENT_QUOTES, 'UTF-8'); ?></span></p>
             <?php endif; ?>
-            <p><strong>Status:</strong> <span style="color:#2e7d32; font-weight:bold;">Paid ✔</span></p>
+            <p><strong>Status:</strong> <span class="paid-status">Paid ✔</span></p>
         </div>
 
-        <p style="color:#777; font-size:14px;">
+        <p class="success-note">
             Your order is now being processed. You will receive your items at the shipping address provided.
         </p>
 

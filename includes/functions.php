@@ -105,15 +105,46 @@ function validateEmail($email) {
 }
 
 function validatePhone($phone) {
-    return preg_match('/^[0-9+\-\s()]{7,20}$/', $phone);
+    // Nepal mobile numbers: 10 digits starting with 9 (e.g. 9800000000)
+    // Also accepts landline formats like 01-4XXXXXX
+    $cleaned = preg_replace('/[\s\-()]/', '', $phone);
+    return preg_match('/^(\+977)?[9][0-9]{9}$/', $cleaned)
+        || preg_match('/^0[1-9][0-9]{6,7}$/', $cleaned);
 }
 
 function validatePassword($password) {
-    return strlen($password) >= 6;
+    // Min 8 chars, at least one uppercase, one lowercase, one digit
+    if (strlen($password) < 8) return false;
+    if (!preg_match('/[A-Z]/', $password)) return false;
+    if (!preg_match('/[a-z]/', $password)) return false;
+    if (!preg_match('/[0-9]/', $password)) return false;
+    return true;
 }
 
 function validateName($name) {
-    return strlen(trim($name)) >= 2 && preg_match('/^[a-zA-Z\s.\'-]+$/', trim($name));
+    $name = trim($name);
+    // Min 3, max 100, only letters, spaces, dots, apostrophes, hyphens
+    return strlen($name) >= 3
+        && strlen($name) <= 100
+        && preg_match('/^[a-zA-Z\s.\'\-]+$/', $name);
+}
+
+function validateProductName($name) {
+    $name = trim($name);
+    return strlen($name) >= 3 && strlen($name) <= 200;
+}
+
+function validateProductPrice($price) {
+    $price = (float)$price;
+    return $price >= 0.01 && $price <= 9999999.99;
+}
+
+function validateProductStock($stock) {
+    return is_numeric($stock) && (int)$stock >= 0 && (int)$stock <= 99999;
+}
+
+function validateAddress($address) {
+    return strlen(trim($address)) >= 10 && strlen(trim($address)) <= 500;
 }
 
 function flashMessage($key, $message = null) {

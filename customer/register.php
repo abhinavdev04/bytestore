@@ -13,16 +13,26 @@ if (isset($_POST['register'])) {
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
 
-    if (!validateName($name)) {
-        $error = 'Please enter a valid name (min 2 characters).';
+    if (empty($name)) {
+        $error = 'Full name is required.';
+    } elseif (!validateName($name)) {
+        $error = 'Name must be 3–100 characters and contain only letters, spaces, dots, or hyphens.';
+    } elseif (empty($email)) {
+        $error = 'Email address is required.';
     } elseif (!validateEmail($email)) {
-        $error = 'Invalid email format.';
+        $error = 'Please enter a valid email address (e.g. name@example.com).';
+    } elseif (empty($password)) {
+        $error = 'Password is required.';
     } elseif (!validatePassword($password)) {
-        $error = 'Password must be at least 6 characters.';
+        $error = 'Password must be at least 8 characters and include one uppercase letter, one lowercase letter, and one number.';
+    } elseif (empty($phone)) {
+        $error = 'Phone number is required.';
     } elseif (!validatePhone($phone)) {
-        $error = 'Invalid phone number.';
-    } elseif (strlen($address) < 5) {
-        $error = 'Please enter a complete address.';
+        $error = 'Phone number must be a valid Nepal mobile number (e.g. 9800000000) or landline.';
+    } elseif (empty($address)) {
+        $error = 'Address is required.';
+    } elseif (!validateAddress($address)) {
+        $error = 'Address must be at least 10 characters long. Please enter your full delivery address.';
     } else {
         $nameEsc = mysqli_real_escape_string($conn, $name);
         $emailEsc = mysqli_real_escape_string($conn, $email);
@@ -60,7 +70,7 @@ include '../includes/header.php';
         <div class="form-group"><label>Full Name</label><input type="text" name="name" data-validate="name" required value="<?php echo e($_POST['name'] ?? ''); ?>"></div>
         <div class="form-group"><label>Email</label><input type="email" name="email" data-validate="email" required value="<?php echo e($_POST['email'] ?? ''); ?>"></div>
         <div class="form-group"><label>Phone Number</label><input type="tel" name="phone" data-validate="phone" required value="<?php echo e($_POST['phone'] ?? ''); ?>"></div>
-        <div class="form-group"><label>Password</label><input type="password" name="password" data-validate="password" required><p class="form-hint">Minimum 6 characters</p></div>
+        <div class="form-group"><label>Password</label><input type="password" name="password" data-validate="password" required><p class="form-hint">Min 8 characters — must include uppercase, lowercase, and a number</p></div>
         <div class="form-group"><label>Address</label><textarea name="address" data-validate="address" rows="3" required><?php echo e($_POST['address'] ?? ''); ?></textarea></div>
         <button type="submit" name="register" class="btn btn--primary btn--block">Create Account</button>
     </form>

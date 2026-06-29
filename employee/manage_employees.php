@@ -10,6 +10,7 @@
 session_start();
 require '../config/config.php';
 require '../includes/auth.php';
+require '../includes/functions.php';
 
 checkEmployeeLogin();
 
@@ -28,12 +29,20 @@ if (isset($_POST['add_employee'])) {
     $phone    = trim($_POST['employee_phone'] ?? '');
     $shopName = trim($_POST['shop_name'] ?? '');
 
-    if (!preg_match($emailPattern, $email)) {
-        $error = "Invalid email format!";
+    if (empty($name)) {
+        $error = "Employee name is required.";
+    } elseif (!validateName($name)) {
+        $error = "Name must be 3–100 characters and contain only letters, spaces, dots, or hyphens.";
+    } elseif (!preg_match($emailPattern, $email)) {
+        $error = "Please enter a valid email address (e.g. employee@bytestore.com).";
+    } elseif (empty($password)) {
+        $error = "Password is required.";
     } elseif (!preg_match($passwordPattern, $password)) {
-        $error = "Password must be at least 8 characters and include uppercase, lowercase, digit, and special character.";
-    } elseif ($phone === '') {
+        $error = "Password must be at least 8 characters and include uppercase, lowercase, a digit, and a special character (e.g. @\$!%*?&).";
+    } elseif (empty($phone)) {
         $error = "Phone number is required.";
+    } elseif (!validatePhone($phone)) {
+        $error = "Phone must be a valid Nepal mobile number (e.g. 9800000000).";
     } else {
 
         $nameEsc     = mysqli_real_escape_string($conn, $name);
